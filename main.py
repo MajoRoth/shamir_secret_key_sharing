@@ -8,6 +8,9 @@ from numpy.polynomial.polynomial import Polynomial
 
 
 if __name__ == '__main__':
+    """
+        https://numpy.org/doc/stable/reference/routines.polynomials.html
+    """
     x = np.array([0, 1, 2, 3])
     y = x ** 3
     poly = lagrange(x, y)
