@@ -1,6 +1,6 @@
 import random
 import settings
-from utils.math_helper import lagrange_interpolate
+from utils.math_helper import lagrange_interpolate, eval_at
 from numpy.polynomial.polynomial import polyval
 
 """
@@ -32,12 +32,13 @@ def get_shares(k, n, s):
     polynom_coefficients.append(s)
 
     x_list = get_x_values(n)
-    shares = [(x, polyval(x, polynom_coefficients[::-1]) % settings.p) for x in x_list]  # TODO not sure about the modulo
+    # shares = [(x, polyval(x, polynom_coefficients[::-1]) % settings.p ) for x in x_list]  # TODO not sure about the modulo
+    shares = [(x, eval_at(polynom_coefficients, x, settings.p)) for x in x_list]
 
     print(shares) # TODO for debug remove later
     print(polynom_coefficients)  # TODO for debug remove later
 
-    return shares
+    return shares, polynom_coefficients  # TODO return polynom_coefficients for debug, rmove it later
 
 
 def get_x_values(n, p=settings.p):
@@ -74,10 +75,35 @@ def get_secret(shares):
 
 
 
-
 if __name__ == '__main__':
-    s = get_shares(4, 4, 8)
+    s, original_poly_coeff = get_shares(4, 4, 8)
     get_secret(s)
+
     from scipy.interpolate import lagrange
-    poly = lagrange([t[0] for t in s], [t[1] for t in s])
+    import matplotlib.pyplot as plt
+    import numpy as np
+    from numpy.polynomial.polynomial import Polynomial
+
+    x = [t[0] for t in s]
+    y = [t[1] for t in s]
+
+    poly = lagrange(x, y)
     print(poly)
+    # print("original poly y_0 {}, lagrange y_0 {}".format(Polynomial(original_poly(0), poly(0))))
+
+    x_new = np.arange(-1, 10, 1)
+
+    fig, ax = plt.subplots()
+    ax.grid(True, which='both')
+
+    ax.scatter(x, y, label='data')
+
+    y_new = [lagrange_interpolate(t, x, y, settings.p) for t in x_new]
+
+
+    ax.plot(x_new, Polynomial(poly.coef[::-1])(x_new), label='lagrange polynom')
+    ax.plot(x_new, y_new, label='lagrange polynom modulo')
+    # plt.plot(x_new, 3 * x_new ** 2 - 2 * x_new + 0 * x_new, label = r"$3 x^2 - 2 x$", linestyle = '-.')
+    plt.legend()
+
+    plt.show()

@@ -1,4 +1,15 @@
 
+def eval_at(poly, x, prime):
+    """Evaluates polynomial (coefficient tuple) at x, used to generate a
+    shamir pool in make_random_shares below.
+    """
+    accum = 0
+    for coeff in poly:
+        accum *= x
+        accum += coeff
+        accum %= prime
+    return accum
+
 def extended_gcd(a, b):
     """
     Copied from wikipedia
