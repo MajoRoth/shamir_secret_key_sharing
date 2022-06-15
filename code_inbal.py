@@ -28,7 +28,7 @@ def get_polynomials(r: int, shareholders: list) -> list:
 
 # A1 from the article:
 def share_generation(t: int, shareholders: list, p: int, a_coeff: np.array) -> int:
-    n = len(shareholders)
+    n = len(shareholders) # todo look here
     r = math.ceil((n - 1) / t)  # polynomials num
 
     # get the polynomials
@@ -73,7 +73,7 @@ def calculate_cv(v: int, a_coeff: np.array, polynomials: list, x_arr:list, p: in
         prod = 1
         for j in range(l):
             if j != v:
-                prod *= (i-x_arr[j])/(x_v - x_arr[j]) % p
+                prod *= (i+1-x_arr[j])/(x_v - x_arr[j]) % p
 
         value *= prod % p
 
@@ -131,4 +131,4 @@ def main_for_A2():
 
 
 if __name__ == '__main__':
-    pass
+    main_for_A2()

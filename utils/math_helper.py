@@ -44,12 +44,7 @@ def PI(vals):
     :param vals: list of numbers
     :return: the multiplicity of all of the numbers
     """
-    # TODO tell amit about it
-    # return np.prod(vals)
-    accum = 1
-    for v in vals:
-        accum *= v
-    return accum
+    return np.prod(vals)
 
 
 def lagrange_interpolate(x, x_s, y_s, p):
