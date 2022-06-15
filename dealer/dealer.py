@@ -46,7 +46,7 @@ class Dealer:
 
     def share_generation(self):
         # create h(i) vector
-        h_i = np.array([get_secret(poly_points, i + 1) for i, poly_points in enumerate(self.points_matrix)])
+        h_i = np.array([get_secret(poly_points[:self.t], i + 1) for i, poly_points in enumerate(self.points_matrix)])
 
         print("h_i = ", h_i)
         print("a_coeff = ", self.a_list)
