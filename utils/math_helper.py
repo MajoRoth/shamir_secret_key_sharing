@@ -43,7 +43,7 @@ def PI(vals):
     :param vals: list of numbers
     :return: the multiplicity of all of the numbers
     """
-    return np.prod(vals)
+    return np.prod(list(vals))
 
 
 def lagrange_interpolate(x, x_s, y_s, p):
