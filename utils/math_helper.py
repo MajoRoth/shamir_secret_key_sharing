@@ -1,4 +1,6 @@
 import numpy as np
+from scipy.interpolate import lagrange
+from numpy.polynomial.polynomial import Polynomial
 
 
 def eval_at(poly, x, prime):
@@ -65,5 +67,7 @@ def lagrange_interpolate(x, x_s, y_s, p):
     num = sum([divmod(nums[i] * den * y_s[i] % p, dens[i], p)
                for i in range(k)])
     return (divmod(num, den, p) + p) % p
+
+
 
 

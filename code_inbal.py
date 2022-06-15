@@ -126,16 +126,4 @@ def main_for_A2():
 
 
 if __name__ == '__main__':
-    t = 2  # t = num of functions
-    l = 4  # threshold
-    p = 100
-
-    pols = [Polynomial([1, 1]), Polynomial([1, 2])]
-    a_coeff = np.array([1, 2])  # len(a) = t
-
-    shareholders = [Shareholder(3, [pols[0](3), pols[1](3)]), Shareholder(4, [pols[0](4), pols[1](4)]),
-                    Shareholder(5, [pols[0](5), pols[1](5)]), Shareholder(6, [pols[0](6), pols[1](6)])]
-
-    # TODO understand how the clients know r
-    s = secret_reconstructor_for_changeable_threshold(l, shareholders, p, a_coeff, r=len(pols))
-    print(s)
+    main_for_A2()
