@@ -1,7 +1,4 @@
 import numpy as np
-from scipy.interpolate import lagrange
-from numpy.polynomial.polynomial import Polynomial
-
 
 def eval_at(poly, x, prime):
     """Evaluates polynomial (coefficient tuple) at x, used to generate a

@@ -1,16 +1,15 @@
 import numpy as np
 import math
-from numpy.polynomial.polynomial import Polynomial
 
 import settings
 
 
 class Member:
 
-    def __init__(self, t: int, n: int, r: int, a_coeff: np.array, x_share: int, ys_share: np.array):
+    def __init__(self, t: int, n: int, a_coeff: np.array, x_share: int, ys_share: np.array):
         self.t = t
         self.n = n
-        self.r = r
+        self.r = math.ceil((n - 1) / t)
         self.a_coeff = a_coeff
         self.points = [(x_share, y_share) for y_share in ys_share]
 
@@ -45,40 +44,3 @@ class Member:
             c_v += value % settings.p
 
         return c_v
-
-
-def secret_reconstructor_for_changeable_threshold(p: int, l: int, members: list) -> float:
-    """
-    NEED TO BE MOVED
-    :param p:
-    :param l:
-    :param members:
-    :return:
-    """
-    x_arr = [s.points[0][0] for s in members]
-
-    # calculate c value for each shareholder
-    c_arr = [m.calculate_cv(v, x_arr, l) % p for v, m in enumerate(members)]
-
-    # calculate the secret
-    secret = sum(c_arr[:l]) % settings.p
-
-    return secret
-
-
-if __name__ == '__main__':
-    t = 2  # t = num of functions
-    l = 3  # threshold
-    p = 100
-    n = 3
-    r = 2
-
-    pols = [Polynomial([1, 1]), Polynomial([1, 2])]
-    a_coeff = np.array([1, 2])  # len(a) = t
-
-    members = [Member(p, t, n, r, a_coeff, 3, [pols[0](3), pols[1](3)]),
-               Member(p, t, n, r, a_coeff, 4, [pols[0](4), pols[1](4)]),
-               Member(p, t, n, r, a_coeff, 5, [pols[0](5), pols[1](5)])]
-
-    s = secret_reconstructor_for_changeable_threshold(p, l, members)
-    print(s)
