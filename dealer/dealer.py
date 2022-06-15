@@ -1,4 +1,6 @@
 import math
+import settings
+import random
 
 from shamir.shamir import get_shares_no_secret, get_x_values
 
@@ -14,8 +16,8 @@ class Dealer:
         self.n = n
         self.r = math.ceil((n - 1) / t)
         self.points_matrix = list()  # matrix of dots [[(1,1), (2,2), ...], [(1,1), (2,2), ...]] each row stands for a polynom
-
-        self.pop_count = 0 # private
+        self.a_list = list()
+        self.pop_count = 0  # private
 
     def generate_polynom_list(self):
         x_list = get_x_values(self.n)
@@ -32,6 +34,12 @@ class Dealer:
             raise "All points were delivered"
         self.pop_count += 1
         return [row[self.pop_count - 1] for row in self.points_matrix]
+
+    def generate_a_coeff_list(self):
+        for i in range(self.r):
+            self.a_list.append(random.randrange(1, settings.p))
+
+
 
 
 

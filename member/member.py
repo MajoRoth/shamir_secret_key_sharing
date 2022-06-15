@@ -7,12 +7,12 @@ import settings
 
 class Member:
 
-    def __init__(self, t: int, n: int, r: int, a_coeff: np.array, x_share: int, ys_share: np.array):
+    def __init__(self, t: int, n: int, r: int, a_coeff: np.array, points: list):
         self.t = t
         self.n = n
         self.r = r
         self.a_coeff = a_coeff
-        self.points = [(x_share, y_share) for y_share in ys_share]
+        self.points = points
 
     def get_my_x(self):
         return self.points[0][0]
@@ -45,6 +45,9 @@ class Member:
             c_v += value % settings.p
 
         return c_v
+
+    def __str__(self):
+        return "member: {}".format(self.points)
 
 
 def secret_reconstructor_for_changeable_threshold(p: int, l: int, members: list) -> float:

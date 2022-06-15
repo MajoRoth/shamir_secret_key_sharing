@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from numpy.polynomial.polynomial import Polynomial
 
+import member.member
 from dealer.dealer import Dealer
 
 
@@ -38,9 +39,13 @@ if __name__ == '__main__':
     r = 2
 
     d = Dealer(2, 5)
+    d.generate_a_coeff_list()
     print(d.generate_polynom_list())
     a_coeff = np.array([1, 2])
     members = list()
+
     for i in range(5):
-        members.append(2, 3, 2, a_coeff)
-        print(d.pop_point())
+        members.append(member.member.Member(2, 3, 2, a_coeff, d.pop_point()))
+        print(members[i])
+
+
