@@ -6,6 +6,7 @@ import settings
 
 
 class Member:
+
     def __init__(self, t: int, n: int, r: int, a_coeff: np.array, x_share: int, ys_share: np.array):
         self.t = t
         self.n = n

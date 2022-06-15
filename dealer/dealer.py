@@ -15,6 +15,8 @@ class Dealer:
         self.r = math.ceil((n - 1) / t)
         self.points_matrix = list()  # matrix of dots [[(1,1), (2,2), ...], [(1,1), (2,2), ...]] each row stands for a polynom
 
+        self.pop_count = 0 # private
+
     def generate_polynom_list(self):
         x_list = get_x_values(self.n)
         for i in range(self.r):
@@ -22,7 +24,14 @@ class Dealer:
 
         return self.points_matrix
 
-    def
+    def get_points_by_index(self, i):
+        return [row[i] for row in self.points_matrix]
+
+    def pop_point(self):
+        if self.pop_count >= self.n:
+            raise "All points were delivered"
+        self.pop_count += 1
+        return [row[self.pop_count - 1] for row in self.points_matrix]
 
 
 
@@ -30,4 +39,5 @@ class Dealer:
 if __name__ == "__main__":
     d = Dealer(2, 5)
     print(d.generate_polynom_list())
+    print(d.get_dots_by_index(0))
 
