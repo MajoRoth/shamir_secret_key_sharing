@@ -1,6 +1,7 @@
 import settings
 import numpy as np
 from member.member import Member
+from shamir.tcss import *
 
 import math
 from numpy.polynomial.polynomial import Polynomial
@@ -23,6 +24,23 @@ class Validator:
         secret = sum(c_arr[:l]) % settings.p
 
         return secret
+
+    @staticmethod
+    def share_generation(points_matrix: list) -> int:
+        """
+        :param points_matrix: list of points for each polynomial
+        :return:
+        """
+
+        # create h(i) vector
+        h_i = np.array([get_secret(poly_points, i+1) for i, poly_points in enumerate(points_matrix)])
+
+        # get the secret
+        secret = a_coeff.dot(h_i) % p
+
+        return secret
+
+
 
 
 if __name__ == '__main__':
