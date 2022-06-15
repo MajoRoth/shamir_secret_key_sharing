@@ -51,7 +51,7 @@ if __name__ == '__main__':
 
     points = [members[0].points, members[1].points]
     print(points)
-    s = validator.validator.Validator.share_generation(points)
+    s = validator.validator.Validator.share_generation(points, np.array(d.a_list))
     print(s)
 
 

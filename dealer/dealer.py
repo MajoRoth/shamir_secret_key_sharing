@@ -40,6 +40,8 @@ class Dealer:
             self.a_list.append(random.randrange(1, settings.p))
 
 
+
+
     def __str__(self):
         return "dealer-> t={}, n={}, r={}, points={}, a_coeff={}".format(self.t, self.n, self.r, self.points_matrix, self.a_list)
 

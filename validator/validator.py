@@ -40,7 +40,7 @@ class Validator:
         print("a_coeff = ", a_coeff)
 
         # get the secret
-        secret = a_coeff.dot(h_i) % p
+        secret = a_coeff.dot(h_i) % settings.p
 
         return secret
 

@@ -54,7 +54,6 @@ def get_secret(shares, idx=0):
 
     # TODO need to ad alot of validity checks on the inputs and amount of shares
     s = lagrange_interpolate(idx, [s[0] for s in shares], [s[1] for s in shares], settings.p)
-    print("key = {}".format(s)) # TODO for debug remove later
     return s
 
 
