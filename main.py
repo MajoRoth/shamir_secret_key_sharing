@@ -39,14 +39,14 @@ if __name__ == '__main__':
     n = 3
     r = 2
 
-    d = Dealer(2, 5)
+    d = Dealer(t=2, n=5)
     d.generate_a_coeff_list()
-    print(d.generate_polynom_list())
-    a_coeff = np.array([1, 2])
+    d.generate_polynom_list()
+    print(d)
     members = list()
 
-    for i in range(5):
-        members.append(member.member.Member(2, 3, 2, a_coeff, d.pop_point()))
+    for i in range(3):
+        members.append(member.member.Member(2, 5, 2, d.a_list, d.pop_point()))
         print(members[i])
 
     points = [members[0].points, members[1].points]
