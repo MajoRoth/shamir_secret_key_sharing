@@ -44,6 +44,8 @@ class Dealer:
 
 
 
+
+
 if __name__ == "__main__":
     d = Dealer(2, 5)
     print(d.generate_polynom_list())

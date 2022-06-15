@@ -47,7 +47,8 @@ class Member:
         return c_v
 
     def __str__(self):
-        return "member: {}".format(self.points)
+        return "member-> t={}, n={}, r={}, a_coeff={}, points={}".format(self.t, self.n, self.r, self.a_coeff, self.points)
+
 
 
 def secret_reconstructor_for_changeable_threshold(p: int, l: int, members: list) -> float:
