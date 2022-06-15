@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 from utils.math_helper import lagrange_interpolate
 import settings
