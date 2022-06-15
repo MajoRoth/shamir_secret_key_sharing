@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from numpy.polynomial.polynomial import Polynomial
 
 import member.member
+import validator.validator
 from dealer.dealer import Dealer
 
 
@@ -47,5 +48,10 @@ if __name__ == '__main__':
     for i in range(5):
         members.append(member.member.Member(2, 3, 2, a_coeff, d.pop_point()))
         print(members[i])
+
+    points = [members[0].points, members[1].points]
+    print(points)
+    s = validator.validator.Validator.share_generation(points)
+    print(s)
 
 
