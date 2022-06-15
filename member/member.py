@@ -10,7 +10,7 @@ class Member:
     def __init__(self, t: int, n: int, r: int, a_coeff: np.array, points: list):
         self.t = t
         self.n = n
-        self.r = r
+        self.r = math.ceil((n - 1) / t)
         self.a_coeff = a_coeff
         self.points = points
 
