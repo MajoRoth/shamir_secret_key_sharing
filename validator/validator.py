@@ -31,6 +31,7 @@ class Validator:
         :param points_matrix: list of points for each polynomial
         :return:
         """
+        # TODO check number of points
         points_matrix_T = list(map(list, zip(*points_matrix)))
 
         # create h(i) vector

@@ -1,7 +1,9 @@
 import math
 import settings
 import random
+import numpy as np
 
+from shamir.tcss import get_secret
 from shamir.shamir import get_shares_no_secret, get_x_values
 
 
@@ -16,8 +18,9 @@ class Dealer:
         self.n = n
         self.r = math.ceil((n - 1) / t)
         self.points_matrix = list()  # matrix of dots [[(1,1), (2,2), ...], [(1,1), (2,2), ...]] each row stands for a polynom
-        self.a_list = list()
+        self.a_list = np.array([])
         self.pop_count = 0  # private
+        self.secret = None
 
     def generate_polynom_list(self):
         x_list = get_x_values(self.n)
@@ -36,20 +39,34 @@ class Dealer:
         return [row[self.pop_count - 1] for row in self.points_matrix]
 
     def generate_a_coeff_list(self):
+        a_arr = []
         for i in range(self.r):
-            self.a_list.append(random.randrange(1, settings.p))
+            a_arr.append(random.randrange(1, settings.p))
+        self.a_list = np.array(a_arr)
 
+    def share_generation(self):
+        # create h(i) vector
+        h_i = np.array([get_secret(poly_points, i + 1) for i, poly_points in enumerate(self.points_matrix)])
 
+        print("h_i = ", h_i)
+        print("a_coeff = ", self.a_list)
 
+        # get the secret
+        secret = self.a_list.dot(h_i) % settings.p
+        self.secret = secret
+
+        return secret
 
     def __str__(self):
         return "dealer-> t={}, n={}, r={}, points={}, a_coeff={}".format(self.t, self.n, self.r, self.points_matrix, self.a_list)
 
+        # get the secret
+        secret = a_coeff.dot(h_i) % p
 
 
 
 
-
+        return secret
 
 
 if __name__ == "__main__":
