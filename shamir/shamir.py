@@ -7,15 +7,6 @@ from numpy.polynomial.polynomial import polyval
     How To Share a Secret
 """
 
-"""
-
-    get_secret(shares) - > s:
-        shares - list of tuples
-        [(1, 8), (4, 22) ... ]
-
-        s - the secret
-"""
-
 
 def get_shares(k, n, s):
     """
@@ -41,19 +32,15 @@ def get_shares(k, n, s):
     return shares, polynom_coefficients  # TODO return polynom_coefficients for debug, rmove it later
 
 
-def get_x_values(n, p=settings.p):
+def get_shares_no_secret(k, n):
     """
-    :param n: the number of values to generate
-    :param p: the max value of the field
-    :return: list of unique and random x values in (0, p)
+        :raises: ValueError if n<k
+        :param k: the number of shares that sufficient to know the secret
+        :param n: the number of shares we share
+        :return: list of shares at the following format, [(1, 8), (4, 22) ... ] with a random secret
     """
-    x_list = list()
-    while len(x_list) != n:
-        x = random.randrange(1, p)
-        if x not in x_list:
-            x_list.append(x)
+    return get_shares(k, n, random.randrange(0, settings.p))
 
-    return x_list
 
 
 def get_secret(shares):
@@ -70,6 +57,19 @@ def get_secret(shares):
 
 
 
+def get_x_values(n, p=settings.p):
+    """
+    :param n: the number of values to generate
+    :param p: the max value of the field
+    :return: list of unique and random x values in (0, p)
+    """
+    x_list = list()
+    while len(x_list) != n:
+        x = random.randrange(1, p)
+        if x not in x_list:
+            x_list.append(x)
+
+    return x_list
 
 
 
