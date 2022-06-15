@@ -27,8 +27,7 @@ def get_polynomials(r: int, shareholders: list) -> list:
 
 
 # A1 from the article:
-def share_generation(t: int, shareholders: list, p: int, a_coeff: np.array) -> int:
-    n = len(shareholders)
+def share_generation(t: int, shareholders: list, p: int, a_coeff: np.array, n: int) -> int:
     r = math.ceil((n - 1) / t)  # polynomials num
 
     # get the polynomials
@@ -38,14 +37,13 @@ def share_generation(t: int, shareholders: list, p: int, a_coeff: np.array) -> i
     h_i = np.array([poly(i + 1) for i, poly in enumerate(polynomials)])
 
     # get the secret
-    # TODO check if it's OK because of the modulo operation
-    # TODO check if the result needs to be int or float
     secret = a_coeff.dot(h_i) % p
 
     return secret
 
 
 def main_for_A1():
+    n = 5  # num of shareholders
     t = 2  # t = num of functions
     p = 100
 
@@ -56,7 +54,7 @@ def main_for_A1():
                     Shareholder(5, [pols[0](5), pols[1](5)]), Shareholder(6, [pols[0](6), pols[1](6)]),
                     Shareholder(7, [pols[0](7), pols[1](7)])]
 
-    s = share_generation(t, shareholders, p, a_coeff)
+    s = share_generation(t, shareholders, p, a_coeff, n)
     print(s)
 
 
@@ -73,7 +71,7 @@ def calculate_cv(v: int, a_coeff: np.array, polynomials: list, x_arr:list, p: in
         prod = 1
         for j in range(l):
             if j != v:
-                prod *= (i-x_arr[j])/(x_v - x_arr[j]) % p
+                prod *= (i+1-x_arr[j])/(x_v - x_arr[j]) % p
 
         value *= prod % p
 
@@ -97,8 +95,6 @@ def secret_reconstructor_for_changeable_threshold(l: int, shareholders: list, p:
     :param a_coeff: public coefficient list
     :return: the secret key
     """
-    n = len(shareholders)
-
     # get the polynomials
     polynomials = get_polynomials(r, shareholders)
 
@@ -110,7 +106,6 @@ def secret_reconstructor_for_changeable_threshold(l: int, shareholders: list, p:
     # calculate the secret
     secret = sum(c_arr) % p
 
-    # TODO find the mistake here
     return secret
 
 
@@ -131,4 +126,16 @@ def main_for_A2():
 
 
 if __name__ == '__main__':
-    pass
+    t = 2  # t = num of functions
+    l = 4  # threshold
+    p = 100
+
+    pols = [Polynomial([1, 1]), Polynomial([1, 2])]
+    a_coeff = np.array([1, 2])  # len(a) = t
+
+    shareholders = [Shareholder(3, [pols[0](3), pols[1](3)]), Shareholder(4, [pols[0](4), pols[1](4)]),
+                    Shareholder(5, [pols[0](5), pols[1](5)]), Shareholder(6, [pols[0](6), pols[1](6)])]
+
+    # TODO understand how the clients know r
+    s = secret_reconstructor_for_changeable_threshold(l, shareholders, p, a_coeff, r=len(pols))
+    print(s)
