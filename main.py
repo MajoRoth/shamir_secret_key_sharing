@@ -53,6 +53,7 @@ if __name__ == '__main__':
     print(points)
     s = validator.validator.Validator.share_generation(points, np.array(d.a_list))
     print(s)
+    print(d.share_generation())
 
 
 
