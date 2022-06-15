@@ -5,9 +5,6 @@ import matplotlib.pyplot as plt
 from numpy.polynomial.polynomial import Polynomial
 
 
-
-
-
 if __name__ == '__main__':
     """
         https://numpy.org/doc/stable/reference/routines.polynomials.html
@@ -29,5 +26,5 @@ if __name__ == '__main__':
     # print(numpy.polynomial.polynomial.polyval([3], [1, 2, 3]))
 
     tup_l = [(1, 2), (3, 4), (5, 6), (7, 8)]
-    print( [t[0] for t in tup_l])
+    print([t[0] for t in tup_l])
     print([t[1] for t in tup_l])

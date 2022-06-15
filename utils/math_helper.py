@@ -1,3 +1,5 @@
+import numpy as np
+
 
 def eval_at(poly, x, prime):
     """Evaluates polynomial (coefficient tuple) at x, used to generate a
@@ -9,6 +11,7 @@ def eval_at(poly, x, prime):
         accum += coeff
         accum %= prime
     return accum
+
 
 def extended_gcd(a, b):
     """
@@ -35,11 +38,14 @@ def divmod(a, b, p):
     inv, _ = extended_gcd(b, p)
     return a * inv
 
+
 def PI(vals):
     """
     :param vals: list of numbers
     :return: the multiplicity of all of the numbers
     """
+    # TODO tell amit about it
+    # return np.prod(vals)
     accum = 1
     for v in vals:
         accum *= v
