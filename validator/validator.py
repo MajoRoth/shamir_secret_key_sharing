@@ -31,6 +31,7 @@ class Validator:
         :param points_matrix: list of points for each polynomial
         :return:
         """
+        points_matrix = np.array(points_matrix).T
 
         # create h(i) vector
         h_i = np.array([get_secret(poly_points, i+1) for i, poly_points in enumerate(points_matrix)])
