@@ -2,10 +2,11 @@ import numpy as np
 import math
 from numpy.polynomial.polynomial import Polynomial
 
+import settings
+
 
 class Member:
-    def __init__(self, p: int, t: int, n: int, r: int, a_coeff: np.array, x_share: int, ys_share: np.array):
-        self.p = p
+    def __init__(self, t: int, n: int, r: int, a_coeff: np.array, x_share: int, ys_share: np.array):
         self.t = t
         self.n = n
         self.r = r
@@ -30,29 +31,36 @@ class Member:
         x_v = x_arr[v]
 
         for i in range(self.r):
-            value = self.a_coeff[i] * y_arr[i] % self.p
+            value = self.a_coeff[i] * y_arr[i] % settings.p
 
             # calculate the product value
             prod = 1
             for j in range(l):
                 if j != v:
-                    prod *= (i+1-x_arr[j])/(x_v - x_arr[j]) % self.p
+                    prod *= (i+1-x_arr[j])/(x_v - x_arr[j]) % settings.p
 
-            value *= prod % self.p
+            value *= prod % settings.p
 
-            c_v += value % self.p
+            c_v += value % settings.p
 
         return c_v
 
 
 def secret_reconstructor_for_changeable_threshold(p: int, l: int, members: list) -> float:
+    """
+    NEED TO BE MOVED
+    :param p:
+    :param l:
+    :param members:
+    :return:
+    """
     x_arr = [s.points[0][0] for s in members]
 
     # calculate c value for each shareholder
     c_arr = [m.calculate_cv(v, x_arr, l) % p for v, m in enumerate(members)]
 
     # calculate the secret
-    secret = sum(c_arr[:l]) % p
+    secret = sum(c_arr[:l]) % settings.p
 
     return secret
 

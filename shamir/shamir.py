@@ -8,7 +8,7 @@ from numpy.polynomial.polynomial import polyval
 """
 
 
-def get_shares(k, n, s):
+def get_shares(k, n, s, x_list = None):
     """
     :raises: ValueError if n<k
     :param k: the number of shares that sufficient to know the secret
@@ -22,24 +22,26 @@ def get_shares(k, n, s):
     polynom_coefficients = [random.randrange(0, settings.p) for _ in range(k - 1)]
     polynom_coefficients.append(s)
 
-    x_list = get_x_values(n)
-    # shares = [(x, polyval(x, polynom_coefficients[::-1]) % settings.p ) for x in x_list]  # TODO not sure about the modulo
+    if x_list == None:
+        x_list = get_x_values(n)
+
     shares = [(x, eval_at(polynom_coefficients, x, settings.p)) for x in x_list]
+
 
     print(shares) # TODO for debug remove later
     print(polynom_coefficients)  # TODO for debug remove later
 
-    return shares, polynom_coefficients  # TODO return polynom_coefficients for debug, rmove it later
+    return shares  # TODO return polynom_coefficients for debug, rmove it later
 
 
-def get_shares_no_secret(k, n):
+def get_shares_no_secret(k, n, x_list=None):
     """
         :raises: ValueError if n<k
         :param k: the number of shares that sufficient to know the secret
         :param n: the number of shares we share
         :return: list of shares at the following format, [(1, 8), (4, 22) ... ] with a random secret
     """
-    return get_shares(k, n, random.randrange(0, settings.p))
+    return get_shares(k, n, random.randrange(0, settings.p), x_list=x_list)
 
 
 
