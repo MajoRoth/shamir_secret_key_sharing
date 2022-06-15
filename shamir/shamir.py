@@ -45,7 +45,7 @@ def get_shares_no_secret(k, n, x_list=None):
 
 
 
-def get_secret(shares):
+def get_secret(shares, idx=0):
     """
     need to get bigger amount of sharers from the treash hold
     :param shares: gets a list of shares
@@ -53,7 +53,7 @@ def get_secret(shares):
     """
 
     # TODO need to ad alot of validity checks on the inputs and amount of shares
-    s = lagrange_interpolate(0, [s[0] for s in shares], [s[1] for s in shares], settings.p)
+    s = lagrange_interpolate(idx, [s[0] for s in shares], [s[1] for s in shares], settings.p)
     print("key = {}".format(s)) # TODO for debug remove later
     return s
 

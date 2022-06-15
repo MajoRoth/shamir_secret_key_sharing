@@ -47,5 +47,5 @@ class Dealer:
 if __name__ == "__main__":
     d = Dealer(2, 5)
     print(d.generate_polynom_list())
-    print(d.get_dots_by_index(0))
+    print(d.get_points_by_index(0))
 
