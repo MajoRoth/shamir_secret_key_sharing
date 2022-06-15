@@ -31,17 +31,15 @@ class Validator:
         :param points_matrix: list of points for each polynomial
         :return:
         """
-        points_matrix = np.array(points_matrix).T
+        points_matrix_T = list(map(list, zip(*points_matrix)))
 
         # create h(i) vector
-        h_i = np.array([get_secret(poly_points, i+1) for i, poly_points in enumerate(points_matrix)])
+        h_i = np.array([get_secret(poly_points, i+1) for i, poly_points in enumerate(points_matrix_T)])
 
         # get the secret
         secret = a_coeff.dot(h_i) % p
 
         return secret
-
-
 
 
 if __name__ == '__main__':
