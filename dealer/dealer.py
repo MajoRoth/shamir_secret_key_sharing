@@ -3,8 +3,7 @@ import settings
 import random
 import numpy as np
 
-from shamir.tcss import get_secret
-from shamir.shamir import get_shares_no_secret, get_x_values
+from utils.shamir import get_shares_no_secret, get_x_values, get_secret
 
 
 class Dealer:
@@ -21,6 +20,9 @@ class Dealer:
         self.a_list = np.array([])
         self.pop_count = 0  # private
         self.secret = None
+
+    def get_x_arr(self):
+        return [point[0] for point in self.points_matrix[0]]
 
     def generate_polynom_list(self):
         x_list = get_x_values(self.n)
@@ -59,14 +61,6 @@ class Dealer:
 
     def __str__(self):
         return "dealer-> t={}, n={}, r={}, points={}, a_coeff={}".format(self.t, self.n, self.r, self.points_matrix, self.a_list)
-
-        # get the secret
-        secret = a_coeff.dot(h_i) % p
-
-
-
-
-        return secret
 
 
 if __name__ == "__main__":

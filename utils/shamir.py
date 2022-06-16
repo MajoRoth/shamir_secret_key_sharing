@@ -75,9 +75,6 @@ def get_x_values(n, p=settings.p):
     return x_list
 
 
-
-
-
 if __name__ == '__main__':
     s, original_poly_coeff = get_shares(4, 4, 8)
     get_secret(s)

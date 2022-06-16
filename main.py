@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from numpy.polynomial.polynomial import Polynomial
 
 import member.member
+import settings
 import validator.validator
 from dealer.dealer import Dealer
 
@@ -34,7 +35,7 @@ if __name__ == '__main__':
     # print([t[1] for t in tup_l])
 
     t = 2  # t = num of functions
-    l = 3  # threshold
+    l = 2  # threshold
     p = 100
     n = 3
     r = 2
@@ -46,13 +47,19 @@ if __name__ == '__main__':
     members = list()
 
     for i in range(3):
-        members.append(member.member.Member(2, 5, 2, d.a_list, d.pop_point()))
+        members.append(member.member.Member(2, 5, d.a_list, d.pop_point()))
         print(members[i])
 
     points = [members[0].points, members[1].points]
     print(points)
     s = validator.validator.Validator.share_generation(points, np.array(d.a_list))
     print(s)
+
+    # calc cv
+    c_arr = [m.calculate_cv(d.get_x_arr(), l) % settings.p for v, m in enumerate(members)]
+    print("c_arr = ", c_arr)
+
+    print("key is: ", validator.validator.Validator.secret_reconstructor_for_changeable_threshold(l, c_arr))
     print(d.share_generation())
 
 

@@ -38,14 +38,6 @@ def divmod(a, b, p):
     return a * inv
 
 
-def PI(vals):
-    """
-    :param vals: list of numbers
-    :return: the multiplicity of all of the numbers
-    """
-    return np.prod(list(vals))
-
-
 def lagrange_interpolate(x, x_s, y_s, p):
     """
     Find the y-value for the given x, given n (x, y) points;
@@ -58,9 +50,9 @@ def lagrange_interpolate(x, x_s, y_s, p):
     for i in range(k):
         others = list(x_s)
         cur = others.pop(i)
-        nums.append(PI(x - o for o in others))
-        dens.append(PI(cur - o for o in others))
-    den = PI(dens)
+        nums.append(np.prod(list(x - o for o in others)))
+        dens.append(np.prod(list(cur - o for o in others)))
+    den = np.prod(list(dens))
     num = sum([divmod(nums[i] * den * y_s[i] % p, dens[i], p)
                for i in range(k)])
     return (divmod(num, den, p) + p) % p

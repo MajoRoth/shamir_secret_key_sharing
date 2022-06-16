@@ -102,6 +102,8 @@ def secret_reconstructor_for_changeable_threshold(l: int, shareholders: list, p:
 
     # calculate c value for each shareholder
     c_arr = [calculate_cv(v, a_coeff, polynomials, x_arr, p, l) for v in range(l)]
+    # calculate c value for each shareholder
+    # c_arr = [m.calculate_cv(v, x_arr, l) % settings.p for v, m in enumerate(members)]
 
     # calculate the secret
     secret = sum(c_arr) % p
