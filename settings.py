@@ -1,3 +1,4 @@
+import logging
 # p = 11
 p = 100
 
@@ -14,3 +15,5 @@ SUCCESS = {
 FAILURE = {
     'code': 0
 }
+
+LOG_LEVEL = logging.DEBUG

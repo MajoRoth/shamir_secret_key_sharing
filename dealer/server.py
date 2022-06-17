@@ -8,7 +8,7 @@ import settings
 from dealer import Dealer
 
 dealer = None
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=settings.LOG_LEVEL)
 
 
 def run(PORT):
