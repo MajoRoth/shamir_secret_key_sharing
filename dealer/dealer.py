@@ -50,9 +50,6 @@ class Dealer:
         # create h(i) vector
         h_i = np.array([get_secret(poly_points[:self.t], i + 1) for i, poly_points in enumerate(self.points_matrix)])
 
-        print("h_i = ", h_i)
-        print("a_coeff = ", self.a_list)
-
         # get the secret
         secret = self.a_list.dot(h_i) % settings.p
         self.secret = secret

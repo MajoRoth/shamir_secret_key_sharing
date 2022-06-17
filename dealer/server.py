@@ -84,6 +84,14 @@ def threaded_client(connection):
                 logging.info(f"Returned x list successfully")
                 connection.sendall({'code': 1, 'args': {'x_list': x_list}})
 
+            elif request_dict["request_code"] == 4:
+                """
+                    code 4
+                    pop point
+                """
+                point = dealer.pop_point()
+                logging.info(f"Popped points successfully")
+                connection.sendall({'code': 1, 'args': {'points': point}})
 
 
             #
