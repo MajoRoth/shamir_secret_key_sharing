@@ -21,15 +21,15 @@ class Dealer:
         self.pop_count = 0  # private
         self.secret = None
 
-    def get_x_arr(self):
-        return [point[0] for point in self.points_matrix[0]]
-
     def generate_polynom_list(self):
         x_list = get_x_values(self.n)
         for i in range(self.r):
             self.points_matrix.append(get_shares_no_secret(self.t, self.n, x_list))
 
         return self.points_matrix
+
+    def get_x_arr(self):  # call only after self.points_matrix has been populated
+        return [point[0] for point in self.points_matrix[0]]
 
     def get_points_by_index(self, i):
         return [row[i] for row in self.points_matrix]

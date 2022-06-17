@@ -6,6 +6,7 @@ from numpy.polynomial.polynomial import Polynomial
 
 import member.member
 import settings
+import pickle
 import validator.validator
 from dealer.dealer import Dealer
 
@@ -34,33 +35,49 @@ if __name__ == '__main__':
     # print([t[0] for t in tup_l])
     # print([t[1] for t in tup_l])
 
-    t = 2  # t = num of functions
-    l = 2  # threshold
-    p = 100
-    n = 3
-    r = 2
+    # t = 2  # t = num of functions
+    # l = 2  # threshold
+    # p = 100
+    # n = 3
+    # r = 2
+    #
+    # d = Dealer(t=2, n=5)
+    # d.generate_a_coeff_list()
+    # d.generate_polynom_list()
+    # print(d)
+    # members = list()
+    #
+    # for i in range(3):
+    #     members.append(member.member.Member(2, 5, d.a_list, d.pop_point()))
+    #     print(members[i])
+    #
+    # points = [members[0].points, members[1].points]
+    # print(points)
+    # s = validator.validator.Validator.share_generation(points, np.array(d.a_list))
+    # print(s)
+    #
+    # # calc cv
+    # c_arr = [m.calculate_cv(d.get_x_arr(), l) % settings.p for v, m in enumerate(members)]
+    # print("c_arr = ", c_arr)
+    #
+    # print("key is: ", validator.validator.Validator.secret_reconstructor_for_changeable_threshold(l, c_arr))
+    # print(d.share_generation())
 
-    d = Dealer(t=2, n=5)
-    d.generate_a_coeff_list()
-    d.generate_polynom_list()
-    print(d)
-    members = list()
+    import socket
 
-    for i in range(3):
-        members.append(member.member.Member(2, 5, d.a_list, d.pop_point()))
-        print(members[i])
+    ClientSocket = socket.socket()
 
-    points = [members[0].points, members[1].points]
-    print(points)
-    s = validator.validator.Validator.share_generation(points, np.array(d.a_list))
-    print(s)
+    print('Waiting for connection')
+    try:
+        ClientSocket.connect((settings.DEALER_HOST, settings.DEALER_PORT))
+    except socket.error as e:
+        print(str(e))
 
-    # calc cv
-    c_arr = [m.calculate_cv(d.get_x_arr(), l) % settings.p for v, m in enumerate(members)]
-    print("c_arr = ", c_arr)
+    Response = ClientSocket.recv(settings.RECEIVE_BYTES)
 
-    print("key is: ", validator.validator.Validator.secret_reconstructor_for_changeable_threshold(l, c_arr))
-    print(d.share_generation())
+    d = {"request": "send", "param": {"p1": 5, "p2":8}}
+    ClientSocket.send(pickle.dumps(d))
+
 
 
 
