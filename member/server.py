@@ -61,11 +61,11 @@ def threaded_client(connection):
                     points = request_dict["request_args"]["points"]
                     member = Member(t=t, n=n, a_coeff=a_coeff, points=points)
                     logging.info(f"Generated a Member successfully with t={t}, n={n}, a_coeff={a_coeff}, points={points}")
-                    connection.sendall(settings.SUCCESS)
+                    connection.sendall(pickle.dumps(settings.SUCCESS))
 
                 except KeyError:
                     logging.error("Invalid parameters for \"request_code\"=1 - create dealer")
-                    connection.sendall(settings.FAILURE)
+                    connection.sendall(pickle.dumps(settings.FAILURE))
 
 
             elif request_dict["request_code"] == 2:
@@ -75,7 +75,7 @@ def threaded_client(connection):
                 """
                 x = member.get_my_x()
                 logging.info(f"returned x value of points")
-                connection.sendall({'code': 1, 'args': {'x': x}})
+                connection.sendall(pickle.dumps({'code': 1, 'args': {'x': x}}))
 
             elif request_dict["request_code"] == 3:
                 """
@@ -84,7 +84,7 @@ def threaded_client(connection):
                 """
                 y_list = member.get_my_x()
                 logging.info(f"returned y list value of points")
-                connection.sendall({'code': 1, 'args': {'y_list': y_list}})
+                connection.sendall(pickle.dumps({'code': 1, 'args': {'y_list': y_list}}))
 
             elif request_dict["request_code"] == 4:
                 """
@@ -98,11 +98,11 @@ def threaded_client(connection):
                     cv = member.calculate_cv(x_arr=x_arr, l=l)
 
                     logging.info(f"Calculated cv with l={l}, x_arr={x_arr}")
-                    connection.sendall({'code': 1, 'args': {'cv': cv}})
+                    connection.sendall(pickle.dumps({'code': 1, 'args': {'cv': cv}}))
 
                 except KeyError:
                     logging.error("Invalid parameters for \"request_code\"=4 - calculate cv")
-                    connection.sendall(settings.FAILURE)
+                    connection.sendall(pickle.dumps(settings.FAILURE))
 
 
 

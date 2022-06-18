@@ -36,7 +36,7 @@ class Dealer:
 
     def pop_point(self):
         if self.pop_count >= self.n:
-            raise "All points were delivered"
+            raise IndexError("All points were delivered")
         self.pop_count += 1
         return [row[self.pop_count - 1] for row in self.points_matrix]
 
@@ -45,6 +45,7 @@ class Dealer:
         for i in range(self.r):
             a_arr.append(random.randrange(1, settings.p))
         self.a_list = np.array(a_arr)
+        return self.a_list
 
     def share_generation(self):
         # create h(i) vector

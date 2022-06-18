@@ -27,10 +27,6 @@ def get_shares(k, n, s, x_list = None):
 
     shares = [(x, eval_at(polynom_coefficients, x, settings.p)) for x in x_list]
 
-
-    print(shares) # TODO for debug remove later
-    print(polynom_coefficients)  # TODO for debug remove later
-
     return shares  # TODO return polynom_coefficients for debug, rmove it later
 
 

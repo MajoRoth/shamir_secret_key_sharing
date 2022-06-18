@@ -58,11 +58,11 @@ def threaded_client(connection):
                     n = request_dict["request_args"]["n"]
                     dealer = Dealer(t=t, n=n)
                     logging.info(f"Generated a Dealer successfully with t={t} and n={n}")
-                    connection.sendall(settings.SUCCESS)
+                    connection.sendall(pickle.dumps(settings.SUCCESS))
 
                 except KeyError:
                     logging.error("Invalid parameters for \"request_code\"=1 - create dealer")
-                    connection.sendall(settings.FAILURE)
+                    connection.sendall(pickle.dumps(settings.FAILURE))
 
 
             elif request_dict["request_code"] == 2:
@@ -70,9 +70,10 @@ def threaded_client(connection):
                     code 2
                     generate polynoms list
                 """
-                dealer.generate_polynom_list()
+                points = dealer.generate_polynom_list()
                 logging.info(f"Generate polynoms list successfully")
-                connection.sendall(settings.SUCCESS)
+                logging.debug(f"{points}")
+                connection.sendall(pickle.dumps(settings.SUCCESS))
 
             elif request_dict["request_code"] == 3:
                 """
@@ -81,16 +82,30 @@ def threaded_client(connection):
                 """
                 x_list = dealer.generate_polynom_list()
                 logging.info(f"Returned x list successfully")
-                connection.sendall({'code': 1, 'args': {'x_list': x_list}})
+                connection.sendall(pickle.dumps({'code': 1, 'args': {'x_list': x_list}}))
 
             elif request_dict["request_code"] == 4:
                 """
                     code 4
                     pop point
                 """
-                point = dealer.pop_point()
-                logging.info(f"Popped points successfully")
-                connection.sendall({'code': 1, 'args': {'points': point}})
+                try:
+                    point = dealer.pop_point()
+                    logging.info(f"Popped points successfully")
+                    connection.sendall(pickle.dumps({'code': 1, 'args': {'points': point}}))
+                except IndexError:
+                    logging.error(f"All points were delivered")
+                    connection.sendall(pickle.dumps({'code': 0}))
+
+
+            elif request_dict["request_code"] == 5:
+                """
+                    code 5
+                    generate a_coeff list
+                """
+                a_coeff = dealer.generate_a_coeff_list()
+                logging.info(f"Generated a_coeff list successfully")
+                connection.sendall(pickle.dumps({'code': 1, 'args': {'a_coeff': a_coeff}}))
 
 
 
