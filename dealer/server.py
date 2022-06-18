@@ -65,7 +65,6 @@ def threaded_client(connection):
                     connection.sendall(settings.FAILURE)
 
 
-
             elif request_dict["request_code"] == 2:
                 """
                     code 2
@@ -93,9 +92,6 @@ def threaded_client(connection):
                 logging.info(f"Popped points successfully")
                 connection.sendall({'code': 1, 'args': {'points': point}})
 
-
-            #
-            # if re.findall("^create_entity ", data):
 
 
     connection.close()

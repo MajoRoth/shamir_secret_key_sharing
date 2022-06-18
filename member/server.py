@@ -32,7 +32,7 @@ def run(PORT):
 
 
 def threaded_client(connection):
-    global dealer
+    global member
     connection.send(str.encode('Welcome to the Server'))
     while True:
         data = connection.recv(settings.RECEIVE_BYTES)
@@ -47,8 +47,63 @@ def threaded_client(connection):
                 logging.error("A key \"request_code\" does not exist")
                 break
 
-            if True:
-                pass # ...
+
+            if request_dict["request_code"] == 1:
+                """
+                    code 1
+                    create member
+                    params t, n
+                """
+                try:
+                    t = request_dict["request_args"]["t"]
+                    n = request_dict["request_args"]["n"]
+                    a_coeff = request_dict["request_args"]["a_coeff"]
+                    points = request_dict["request_args"]["points"]
+                    member = Member(t=t, n=n, a_coeff=a_coeff, points=points)
+                    logging.info(f"Generated a Member successfully with t={t}, n={n}, a_coeff={a_coeff}, points={points}")
+                    connection.sendall(settings.SUCCESS)
+
+                except KeyError:
+                    logging.error("Invalid parameters for \"request_code\"=1 - create dealer")
+                    connection.sendall(settings.FAILURE)
+
+
+            elif request_dict["request_code"] == 2:
+                """
+                    code 2
+                    get my x 
+                """
+                x = member.get_my_x()
+                logging.info(f"returned x value of points")
+                connection.sendall({'code': 1, 'args': {'x': x}})
+
+            elif request_dict["request_code"] == 3:
+                """
+                    code 3
+                    get my y list 
+                """
+                y_list = member.get_my_x()
+                logging.info(f"returned y list value of points")
+                connection.sendall({'code': 1, 'args': {'y_list': y_list}})
+
+            elif request_dict["request_code"] == 4:
+                """
+                    code 4
+                    calculate cv
+                    params x_arr, l
+                """
+                try:
+                    x_arr = request_dict["request_args"]["t"]
+                    l = request_dict["request_args"]["n"]
+                    cv = member.calculate_cv(x_arr=x_arr, l=l)
+
+                    logging.info(f"Calculated cv with l={l}, x_arr={x_arr}")
+                    connection.sendall({'code': 1, 'args': {'cv': cv}})
+
+                except KeyError:
+                    logging.error("Invalid parameters for \"request_code\"=4 - calculate cv")
+                    connection.sendall(settings.FAILURE)
+
 
 
     connection.close()
