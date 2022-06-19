@@ -20,6 +20,7 @@ class Dealer:
         self.a_list = a_list
         self.pop_count = 0  # private
         self.secret = None
+        self.hash = None
 
     def generate_polynom_list(self):
         x_list = get_x_values(self.n)
@@ -59,6 +60,12 @@ class Dealer:
         self.secret = secret
 
         return secret
+
+    def get_hash(self):
+        self.share_generation()
+        self.hash = hash(self.secret)
+        self.secret = None
+        return self.hash
 
     def __str__(self):
         return "dealer-> t={}, n={}, r={}, points={}, a_coeff={}".format(self.t, self.n, self.r, self.points_matrix, self.a_list)

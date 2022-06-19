@@ -65,7 +65,7 @@ def threaded_client(connection):
 
             elif request_dict["request_code"] == 2:
                 """
-                    code 1
+                    code 2
                     share_generation
                     params points_matrix, a_coeff
                 """
@@ -75,6 +75,28 @@ def threaded_client(connection):
                     s = Validator.share_generation(points_matrix=points_matrix, a_coeff=a_coeff)
                     logging.info(f"Generated a Dealer successfully with points_matrix={points_matrix} and a_coeff={a_coeff}")
                     connection.sendall(pickle.dumps({"code": 1, "args": {"secret": s}}))
+
+                except KeyError:
+                    logging.error("Invalid parameters for \"request_code\"=1 - secret_reconstructor_for_changeable_threshold")
+                    connection.sendall(pickle.dumps(settings.FAILURE))
+
+
+            elif request_dict["request_code"] == 2:
+                """
+                    code 3
+                    validate secret
+                    params secret, hash
+                """
+                try:
+                    secret = request_dict["request_args"]["secret"]
+                    h = request_dict["request_args"]["hash"]
+                    res = Validator.validate_secret(secret, h)
+                    if res:
+                        logging.info(f"Secret has been validated successfully")
+                        connection.sendall(pickle.dumps(settings.SUCCESS))
+                    else:
+                        logging.warning(f"Secret is not valid")
+                        connection.sendall(pickle.dumps(settings.FAILURE))
 
                 except KeyError:
                     logging.error("Invalid parameters for \"request_code\"=1 - secret_reconstructor_for_changeable_threshold")

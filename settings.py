@@ -1,6 +1,6 @@
 import logging
 p = 10**4 + 9
-# p = 100
+delta = 10**(-5)
 
 
 RECEIVE_BYTES = 4096

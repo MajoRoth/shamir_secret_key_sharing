@@ -34,5 +34,15 @@ class Validator:
 
         # get the secret
         secret = a_coeff.dot(h_i) % settings.p
-
         return secret
+
+
+    @staticmethod
+    def validate_secret(secret, hash):
+        s = round(secret)
+        return hash(s) == hash
+
+
+
+
+

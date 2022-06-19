@@ -107,6 +107,15 @@ def threaded_client(connection):
                 logging.info(f"Generated a_coeff list successfully")
                 connection.sendall(pickle.dumps({'code': 1, 'args': {'a_coeff': a_coeff}}))
 
+            elif request_dict["request_code"] == 6:
+                """
+                    code 6
+                    get hash
+                """
+                hash = dealer.get_hash()
+                logging.info(f"Generated hash successfully")
+                connection.sendall(pickle.dumps({'code': 1, 'args': {'hash': hash}}))
+
 
 
     connection.close()
