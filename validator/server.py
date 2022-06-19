@@ -72,7 +72,7 @@ def threaded_client(connection):
                 try:
                     points_matrix = request_dict["request_args"]["points_matrix"]
                     a_coeff = request_dict["request_args"]["a_coeff"]
-                    s = Validator.share_generation(points_matrix=points_matrix, a_coeff=)
+                    s = Validator.share_generation(points_matrix=points_matrix, a_coeff=a_coeff)
                     logging.info(f"Generated a Dealer successfully with points_matrix={points_matrix} and a_coeff={a_coeff}")
                     connection.sendall(pickle.dumps({"code": 1, "args": {"secret": s}}))
 

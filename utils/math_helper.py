@@ -8,7 +8,7 @@ def eval_at(poly, x, prime):
     for coeff in poly:
         accum *= x
         accum += coeff
-        accum %= prime
+        # accum %= prime
     return accum
 
 
