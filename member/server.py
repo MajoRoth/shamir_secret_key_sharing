@@ -60,7 +60,7 @@ def threaded_client(connection):
                     a_coeff = request_dict["request_args"]["a_coeff"]
                     points = request_dict["request_args"]["points"]
                     member = Member(t=t, n=n, a_coeff=a_coeff, points=points)
-                    logging.info(f"Generated a Member successfully with t={t}, n={n}, a_coeff={a_coeff}, points={points}")
+                    logging.info(f"Generated a Member successfully with t={t}, n={n}, a_coeff={a_coeff}, points={points}") #TODO
                     connection.sendall(pickle.dumps(settings.SUCCESS))
 
                 except KeyError:

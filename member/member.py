@@ -1,7 +1,6 @@
 import numpy as np
 import math
-from numpy.polynomial.polynomial import Polynomial
-from utils.shamir import lagrange_interpolate
+from utils import crypto
 
 import settings
 
@@ -16,6 +15,7 @@ class Member:
         self.points = points
         self.current_l = t
         self.cv = None
+        self.private_key, self.public_key = crypto.generate_keys()
 
     def get_my_x(self):
         return self.points[0][0]

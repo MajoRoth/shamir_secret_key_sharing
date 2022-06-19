@@ -3,6 +3,7 @@ import settings
 import random
 import numpy as np
 
+from utils import crypto
 from utils.shamir import get_shares_no_secret, get_x_values, get_secret
 
 
@@ -21,6 +22,8 @@ class Dealer:
         self.pop_count = 0  # private
         self.secret = None
         self.hash = None
+        self.private_key, self.public_key = crypto.generate_keys()
+
 
     def generate_polynom_list(self):
         x_list = get_x_values(self.n)

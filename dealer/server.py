@@ -91,7 +91,7 @@ def threaded_client(connection):
                 try:
                     point = dealer.pop_point()
                     logging.info(f"Popped points successfully")
-                    connection.sendall(pickle.dumps({'code': 1, 'args': {'points': point}}))
+                    connection.sendall(pickle.dumps({'code': 1, 'args': {'points': point}})) #TODO
                 except IndexError:
                     logging.error(f"All points were delivered")
                     connection.sendall(pickle.dumps({'code': 0}))
@@ -122,8 +122,6 @@ def threaded_client(connection):
                 pk = 1 # get publick key from dealer
                 logging.info("returned publick key")
                 connection.sendall(pickle.dumps({'code': 1, 'args': {'pk': pk}}))
-
-
 
     connection.close()
 
