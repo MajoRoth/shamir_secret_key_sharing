@@ -88,13 +88,15 @@ def threaded_client(connection):
                 """
                     code 4
                     pop point
+                    params: pk
                 """
                 try:
                     real_points = dealer.pop_point()
 
                     # new inbal
                     points_str = pickle.dumps(real_points)
-                    encrypted_points = crypto.encrypt_message(points_str, MEMBER_PUBLIC)
+                    pk = request_dict["request_args"]["pk"]
+                    encrypted_points = crypto.encrypt_message(points_str, crypto.str2pub_key(pk))
 
                     logging.info(f"Popped points successfully")
                     connection.sendall(pickle.dumps({'code': 1, 'args': {'points': encrypted_points}}))

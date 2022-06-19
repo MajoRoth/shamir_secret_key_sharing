@@ -6,7 +6,7 @@ import settings
 
 
 class Member:
-    def __int__(self):
+    def __init__(self):
         self.private_key, self.public_key = crypto.generate_keys()
         self.t = None
         self.n = None

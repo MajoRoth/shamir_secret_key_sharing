@@ -292,7 +292,6 @@ def socket_demo():
     import socket
 
     DealerSocket = socket.socket()
-
     print('Waiting for connection')
     try:
         DealerSocket.connect((settings.DEALER_HOST, settings.DEALER_PORT))
@@ -317,6 +316,12 @@ def socket_demo():
 
 
     def execute_command(soc, d):
+        """
+
+        :param soc: socket
+        :param d: dictionary
+        :return:
+        """
         soc.send(pickle.dumps(d))
         Response = soc.recv(settings.RECEIVE_BYTES)
         res = pickle.loads(Response)
@@ -325,7 +330,15 @@ def socket_demo():
 
     execute_command(DealerSocket, {"request_code": "create_dealer", "request_args": {"t": 5, "n": 8}})
     execute_command(DealerSocket, {"request_code": "gen_poly_list"})
-    execute_command(members[0], {"request_code": "init", "request_args": {"host": settings.DEALER_HOST, "port": settings.DEALER_PORT}})
+    for i in range(5):
+        execute_command(members[i], {"request_code": "init", "request_args": {"host": settings.DEALER_HOST, "port": settings.DEALER_PORT}})
+
+    x_arr = execute_command(DealerSocket, {"request_code": "get_x_list"})["args"]["x_list"]
+    print(x_arr)
+
+    for i in range(3):
+        execute_command(members[i], {"request_code": "init", "request_args": {"x_arr": x_arr, "l": 3}})
+
 
 
 

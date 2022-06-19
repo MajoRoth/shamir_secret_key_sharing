@@ -7,6 +7,7 @@ from _thread import *
 import settings
 from member import Member
 from utils import crypto
+from utils.crypto import *
 
 member = Member()
 logging.basicConfig(level=settings.LOG_LEVEL)
@@ -93,7 +94,7 @@ def threaded_client(connection):
                 """
                     code 4
                     calculate cv
-                    params x_arr, l
+                    params x_arr, l, validator_pk
                 """
                 try:
                     x_arr = request_dict["request_args"]["t"]
@@ -102,9 +103,10 @@ def threaded_client(connection):
 
                     logging.info(f"Calculated cv with l={l}, x_arr={x_arr}")
 
+                    pk = request_dict["request_args"]["pk"]
                     # new inbal
                     cv_str = pickle.dumps(cv)
-                    cv_encrypted = crypto.encrypt_message(cv_str, VAL_PUB_KEY)
+                    cv_encrypted = crypto.encrypt_message(cv_str, pk)
                     connection.sendall(pickle.dumps({'code': 1, 'args': {'cv': cv_encrypted}}))
 
                 except KeyError:
@@ -140,7 +142,7 @@ def threaded_client(connection):
                         logging.error(str(e))
 
                     Response = DealerSocket.recv(settings.RECEIVE_BYTES)
-                    d = {"request_code": "pop_points"}
+                    d = {"request_code": "pop_points", "request_args": {"pk": pub_key2str(member.public_key)}}
                     DealerSocket.send(pickle.dumps(d))
                     Response = DealerSocket.recv(settings.RECEIVE_BYTES)
 
