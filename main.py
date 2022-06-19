@@ -143,8 +143,17 @@ if __name__ == '__main__':
         "t": 5, "n": 8, "a_coeff": a_coeff, "points": points
     }}
     MemberSocket.send(pickle.dumps(d))
-    pt = MemberSocket.recv(settings.RECEIVE_BYTES)
+    Response = MemberSocket.recv(settings.RECEIVE_BYTES)
     print(pickle.loads(Response))
+
+    d = {"request_code": 1, "request_args": {
+        "t": 5, "n": 8, "a_coeff": a_coeff, "points": points
+    }}
+    MemberSocket.send(pickle.dumps(d))
+    Response = MemberSocket.recv(settings.RECEIVE_BYTES)
+    print(pickle.loads(Response))
+
+
 
 
 
