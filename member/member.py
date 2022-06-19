@@ -6,8 +6,17 @@ import settings
 
 
 class Member:
+    def __int__(self):
+        self.private_key, self.public_key = crypto.generate_keys()
+        self.t = None
+        self.n = None
+        self.r = None
+        self.a_coeff = None
+        self.points = None
+        self.current_l = None
+        self.cv = None
 
-    def __init__(self, t: int, n: int, a_coeff: np.array, points: list):
+    def set_parameters(self, t: int, n: int, a_coeff: np.array, points: list = None):
         self.t = t
         self.n = n
         self.r = math.ceil((n - 1) / t)
@@ -15,7 +24,6 @@ class Member:
         self.points = points
         self.current_l = t
         self.cv = None
-        self.private_key, self.public_key = crypto.generate_keys()
 
     def get_my_x(self):
         return self.points[0][0]

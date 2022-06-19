@@ -60,7 +60,6 @@ def threaded_client(connection):
                     a_coeff = request_dict["request_args"]["a_coeff"]
                     encrypted_points = request_dict["request_args"]["points"]
                     real_points = pickle.load(crypto.decrypt_message(encrypted_points, member.private_key))
-
                     member.set_parameters(t=t, n=n, a_coeff=a_coeff, points=real_points)
                     logging.info(f"Generated a Member successfully with t={t}, n={n}, a_coeff={a_coeff}, points={real_points}")
                     connection.sendall(pickle.dumps(settings.SUCCESS))
