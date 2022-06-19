@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from numpy.polynomial.polynomial import Polynomial
 
+import dealer.dealer
 import member.member
 import settings
 import pickle
@@ -166,9 +167,6 @@ def sock_main():
 
 
 
-
-
-
 def new_main():
     # todo i saw that when n is growing, the number of functions need to grow either. because r = n-1/t and we run over r functions
     first_threshold = 2  # t = num of functions
@@ -293,11 +291,26 @@ def get_pol(x, y1, y2, t):
     print('---------------------------------------------------------------------------------------------------------\n')
 
 
+def very_new_main():
+    v = validator.validator.Validator()
+
+    d = dealer.dealer.Dealer(5, 8)
+
+    d.generate_a_coeff_list()
+    d.generate_polynom_list()
+    h = d.get_hash()
+    s = d.share_generation()
+    print(h)
+    print(v.validate_secret(s-1, h))
+
+
+
 if __name__ == '__main__':
     """
         https://numpy.org/doc/stable/reference/routines.polynomials.html
     """
-    old_main()
+    # old_main()
     # new2_main()
     # new_main()
     # new3_main()
+    very_new_main()

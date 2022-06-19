@@ -2,6 +2,8 @@ from member.member import Member
 from utils.shamir import get_secret
 import settings
 import numpy as np
+from cryptography.hazmat.primitives import hashes
+
 
 
 class Validator:
@@ -40,7 +42,9 @@ class Validator:
     @staticmethod
     def validate_secret(secret, hash):
         s = round(secret)
-        return hash(s) == hash
+        h = hashes.Hash(hashes.SHA256())
+        h.update(bytes(s))
+        return h.finalize() == hash
 
 
 
