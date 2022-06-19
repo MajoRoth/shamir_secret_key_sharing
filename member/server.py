@@ -52,7 +52,7 @@ def threaded_client(connection):
                 """
                     code 1
                     create member
-                    params t, n
+                    params t, n, a_coeff, points
                 """
                 try:
                     t = request_dict["request_args"]["t"]
@@ -113,6 +113,47 @@ def threaded_client(connection):
                 pk = 1 # get publick key from member
                 logging.info("returned publick key")
                 connection.sendall(pickle.dumps({'code': 1, 'args': {'pk': pk}}))
+
+            if request_dict["request_code"] == 6:
+                """
+                    code 6
+                    create member with connection to the dealer
+                    params t, n, dealer port and host
+                """
+                try:
+                    t = request_dict["request_args"]["t"]
+                    n = request_dict["request_args"]["n"]
+                    host = request_dict["request_args"]["host"]
+                    port = request_dict["request_args"]["port"]
+
+                    DealerSocket = socket.socket()
+
+                    logging.info('Waiting for connection')
+                    try:
+                        DealerSocket.connect((host, port))
+                    except socket.error as e:
+                        logging.error(str(e))
+
+                    Response = DealerSocket.recv(settings.RECEIVE_BYTES)
+                    d = {"request_code": 4}
+                    DealerSocket.send(pickle.dumps(d))
+                    Response = DealerSocket.recv(settings.RECEIVE_BYTES)
+                    pickled_response = pickle.loads(Response) #TODO inbal add encryption
+                    points = pickled_response["args"]["points"]
+
+                    d = {"request_code": 5}
+                    DealerSocket.send(pickle.dumps(d))
+                    Response = DealerSocket.recv(settings.RECEIVE_BYTES)
+                    pickled_response = pickle.loads(Response)  # TODO inbal add encryption
+                    a_coeff = pickled_response["args"]["a_coeff"]
+
+                    member.set_parameters(t=t, n=n, a_coeff=a_coeff, points=points)
+                    logging.info(f"Generated a Member successfully with t={t}, n={n}, a_coeff={a_coeff}, points={points}")
+                    connection.sendall(pickle.dumps(settings.SUCCESS))
+
+                except KeyError:
+                    logging.error("Invalid parameters for \"request_code\"=1 - create dealer")
+                    connection.sendall(pickle.dumps(settings.FAILURE))
 
     connection.close()
 
