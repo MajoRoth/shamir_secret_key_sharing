@@ -104,6 +104,15 @@ def threaded_client(connection):
                     logging.error("Invalid parameters for \"request_code\"=4 - calculate cv")
                     connection.sendall(pickle.dumps(settings.FAILURE))
 
+            elif request_dict["request_code"] == 5:
+                """
+                    code 5
+                    get public key
+                """
+                pk = 1 # get publick key from member
+                logging.info("returned publick key")
+                connection.sendall(pickle.dumps({'code': 1, 'args': {'pk': pk}}))
+
 
 
     connection.close()
