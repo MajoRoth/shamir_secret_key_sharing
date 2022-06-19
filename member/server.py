@@ -105,7 +105,7 @@ def threaded_client(connection):
                     # new inbal
                     cv_str = pickle.dumps(cv)
                     cv_encrypted = crypto.encrypt_message(cv_str, VAL_PUB_KEY)
-                    connection.sendall(pickle.dumps({'code': 1, 'args': {'cv': cv}}))
+                    connection.sendall(pickle.dumps({'code': 1, 'args': {'cv': cv_encrypted}}))
 
                 except KeyError:
                     logging.error("Invalid parameters for \"request_code\"=4 - calculate cv")
@@ -143,8 +143,12 @@ def threaded_client(connection):
                     d = {"request_code": "pop_points"}
                     DealerSocket.send(pickle.dumps(d))
                     Response = DealerSocket.recv(settings.RECEIVE_BYTES)
-                    pickled_response = pickle.loads(Response) #TODO inbal add encryption
-                    points = pickled_response["args"]["points"]
+
+                    pickled_response = pickle.loads(Response)
+
+                    # new inbal
+                    encrypted_points = pickled_response["args"]["points"]
+                    real_points = pickle.loads(crypto.decrypt_message(encrypted_points, member.private_key))
 
                     d = {"request_code": "gen_a_coeff"}
                     DealerSocket.send(pickle.dumps(d))
@@ -164,8 +168,8 @@ def threaded_client(connection):
                     pickled_response = pickle.loads(Response)
                     n = pickled_response["args"]["n"]
 
-                    member.set_parameters(t=t, n=n, a_coeff=a_coeff, points=points)
-                    logging.info(f"Generated a Member successfully with t={t}, n={n}, a_coeff={a_coeff}, points={points}")
+                    member.set_parameters(t=t, n=n, a_coeff=a_coeff, points=real_points)
+                    logging.info(f"Generated a Member successfully with t={t}, n={n}, a_coeff={a_coeff}, points={real_points}")
                     connection.sendall(pickle.dumps(settings.SUCCESS))
 
                 except KeyError:
