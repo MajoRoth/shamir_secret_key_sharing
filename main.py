@@ -302,24 +302,30 @@ def socket_demo():
     Response = DealerSocket.recv(settings.RECEIVE_BYTES)
     print(Response)
 
-    MemberSocket = socket.socket()
+    members = list()
+    for i in range(5):
+        members.append(socket.socket())
 
-    print('Waiting for connection')
-    try:
-        MemberSocket.connect((settings.MEMBER_HOST, settings.MEMBER_PORT))
-    except socket.error as e:
-        print(str(e))
+        print('Waiting for connection')
+        try:
+            members[i].connect((settings.MEMBERS[i][0], settings.MEMBERS[i][1]))
+        except socket.error as e:
+            print(str(e))
 
-    Response = MemberSocket.recv(settings.RECEIVE_BYTES)
-    print(Response)
+        Response = members[i].recv(settings.RECEIVE_BYTES)
+        print(Response)
 
-    def execute_command(d):
-        DealerSocket.send(pickle.dumps(d))
-        Response = DealerSocket.recv(settings.RECEIVE_BYTES)
-        print(pickle.loads(Response))
 
-    execute_command({"request_code": "create_dealer", "request_args": {"t": 5, "n": 8}})
-    execute_command({"request_code": "gen_poly_list"})
+    def execute_command(soc, d):
+        soc.send(pickle.dumps(d))
+        Response = soc.recv(settings.RECEIVE_BYTES)
+        res = pickle.loads(Response)
+        print(res)
+        return res
+
+    execute_command(DealerSocket, {"request_code": "create_dealer", "request_args": {"t": 5, "n": 8}})
+    execute_command(DealerSocket, {"request_code": "gen_poly_list"})
+    execute_command(members[0], {"request_code": "init", "request_args": {"host": settings.DEALER_HOST, "port": settings.DEALER_PORT}})
 
 
 
@@ -338,4 +344,4 @@ if __name__ == '__main__':
     # new_main()
     # new3_main()
     # very_new_main()
-    sock_main()
+    socket_demo()
