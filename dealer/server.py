@@ -47,7 +47,7 @@ def threaded_client(connection):
                 logging.error("A key \"request_code\" does not exist")
                 break
 
-            if request_dict["request_code"] == 1:
+            if request_dict["request_code"] == "create_dealer":
                 """
                     code 1
                     create dealer
@@ -64,7 +64,7 @@ def threaded_client(connection):
                     logging.error("Invalid parameters for \"request_code\"=1 - create dealer")
                     connection.sendall(pickle.dumps(settings.FAILURE))
 
-            elif request_dict["request_code"] == 2:
+            elif request_dict["request_code"] == "gen_poly_list":
                 """
                     code 2
                     generate polynoms list
@@ -74,7 +74,7 @@ def threaded_client(connection):
                 logging.debug(f"{points}")
                 connection.sendall(pickle.dumps(settings.SUCCESS))
 
-            elif request_dict["request_code"] == 3:
+            elif request_dict["request_code"] == "get_x_list":
                 """
                     code 3
                     get x list
@@ -83,7 +83,7 @@ def threaded_client(connection):
                 logging.info(f"Returned x list successfully")
                 connection.sendall(pickle.dumps({'code': 1, 'args': {'x_list': x_list}}))
 
-            elif request_dict["request_code"] == 4:
+            elif request_dict["request_code"] == "pop_points":
                 """
                     code 4
                     pop point
@@ -96,7 +96,7 @@ def threaded_client(connection):
                     logging.error(f"All points were delivered")
                     connection.sendall(pickle.dumps({'code': 0}))
 
-            elif request_dict["request_code"] == 5:
+            elif request_dict["request_code"] == "gen_a_coeff":
                 """
                     code 5
                     generate a_coeff list
@@ -105,7 +105,7 @@ def threaded_client(connection):
                 logging.info(f"Generated a_coeff list successfully")
                 connection.sendall(pickle.dumps({'code': 1, 'args': {'a_coeff': a_coeff}}))
 
-            elif request_dict["request_code"] == 6:
+            elif request_dict["request_code"] == "get_hash":
                 """
                     code 6
                     get hash
@@ -114,7 +114,7 @@ def threaded_client(connection):
                 logging.info(f"Generated hash successfully")
                 connection.sendall(pickle.dumps({'code': 1, 'args': {'hash': hash}}))
 
-            elif request_dict["request_code"] == 7:
+            elif request_dict["request_code"] == "get_pk":
                 """
                     code 7
                     get public key

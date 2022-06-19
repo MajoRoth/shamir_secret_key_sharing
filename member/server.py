@@ -48,10 +48,10 @@ def threaded_client(connection):
                 logging.error("A key \"request_code\" does not exist")
                 break
 
-            if request_dict["request_code"] == 1:
+            if request_dict["request_code"] == "set_params":
                 """
                     code 1
-                    create member
+                    set_params
                     params t, n, a_coeff, points
                 """
                 try:
@@ -71,7 +71,7 @@ def threaded_client(connection):
                     logging.error("Invalid parameters for \"request_code\"=1 - create dealer")
                     connection.sendall(pickle.dumps(settings.FAILURE))
 
-            elif request_dict["request_code"] == 2:
+            elif request_dict["request_code"] == "get_x":
                 """
                     code 2
                     get my x 
@@ -80,7 +80,7 @@ def threaded_client(connection):
                 logging.info(f"returned x value of points")
                 connection.sendall(pickle.dumps({'code': 1, 'args': {'x': x}}))
 
-            elif request_dict["request_code"] == 3:
+            elif request_dict["request_code"] == "get_y_list":
                 """
                     code 3
                     get my y list 
@@ -89,7 +89,7 @@ def threaded_client(connection):
                 logging.info(f"returned y list value of points")
                 connection.sendall(pickle.dumps({'code': 1, 'args': {'y_list': y_list}}))
 
-            elif request_dict["request_code"] == 4:
+            elif request_dict["request_code"] == "calc_cv":
                 """
                     code 4
                     calculate cv
@@ -111,7 +111,7 @@ def threaded_client(connection):
                     logging.error("Invalid parameters for \"request_code\"=4 - calculate cv")
                     connection.sendall(pickle.dumps(settings.FAILURE))
 
-            elif request_dict["request_code"] == 5:
+            elif request_dict["request_code"] == "get_pk":
                 """
                     code 5
                     get public key
@@ -120,7 +120,8 @@ def threaded_client(connection):
                 logging.info("returned publick key")
                 connection.sendall(pickle.dumps({'code': 1, 'args': {'pk': pk}}))
 
-            if request_dict["request_code"] == 6:
+
+            if request_dict["request_code"] == "init":
                 """
                     code 6
                     create member with connection to the dealer

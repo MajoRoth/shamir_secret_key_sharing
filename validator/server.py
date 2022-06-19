@@ -9,6 +9,7 @@ from validator import Validator
 
 logging.basicConfig(level=settings.LOG_LEVEL)
 
+validator = Validator()
 
 def run(PORT):
     ServerSocket = socket.socket()
@@ -31,7 +32,7 @@ def run(PORT):
 
 
 def threaded_client(connection):
-    global dealer
+    global validator
     connection.send(str.encode('Welcome to the Server'))
     while True:
         data = connection.recv(settings.RECEIVE_BYTES)
