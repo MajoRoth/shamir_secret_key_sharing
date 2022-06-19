@@ -1,5 +1,5 @@
 import logging
-p = 10**4 + 9
+p = 200
 delta = 10**(-5)
 
 
@@ -23,3 +23,5 @@ FAILURE = {
 }
 
 LOG_LEVEL = logging.DEBUG
+PUBLIC_EXPONENT = 65537
+KEY_SIZE = 2048

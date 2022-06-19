@@ -1,4 +1,9 @@
 import numpy as np
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+
+import settings
+
 
 def eval_at(poly, x, prime):
     """Evaluates polynomial (coefficient tuple) at x, used to generate a
@@ -58,5 +63,42 @@ def lagrange_interpolate(x, x_s, y_s, p):
     return (divmod(num, den, p) + p) % p
 
 
+def generate_keys():
+    private_key = rsa.generate_private_key(
+        public_exponent=settings.PUBLIC_EXPONENT,
+        key_size=settings.KEY_SIZE)
+
+    public_key = private_key.public_key()
+    return private_key, public_key
 
 
+def pub_key2str(pk):
+    pem_public = pk.public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo
+    )
+    return pem_public.decode()
+
+
+def str2pub_key(pem_string):
+    public_key = serialization.load_pem_public_key(
+        pem_string.encode()
+    )
+    return public_key
+
+
+def pr_key2str(prk):
+    pem_private = prk.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.TraditionalOpenSSL,
+        encryption_algorithm=serialization.NoEncryption()
+    )
+    return pem_private.decode()
+
+
+def str2pr_key(pem_string):
+    private_key = serialization.load_pem_private_key(
+        pem_string,
+        password=None
+    )
+    return private_key
