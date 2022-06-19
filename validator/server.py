@@ -5,11 +5,12 @@ import logging
 from _thread import *
 
 import settings
+from utils import crypto
 from validator import Validator
 
+validator = Validator()
 logging.basicConfig(level=settings.LOG_LEVEL)
 
-validator = Validator()
 
 def run(PORT):
     ServerSocket = socket.socket()
@@ -55,7 +56,12 @@ def threaded_client(connection):
                 """
                 try:
                     l = request_dict["request_args"]["l"]
-                    c_arr = request_dict["request_args"]["c_arr"]
+                    encrypted_c_arr = request_dict["request_args"]["c_arr"]
+
+                    # new inbal
+                    cv_str = crypto.decrypt_message(encrypted_c_arr, validator.private_key)
+                    c_arr = pickle.loads(cv_str)
+
                     s = Validator.secret_reconstructor_for_changeable_threshold(l, c_arr)
                     logging.info(f"Generated a Dealer successfully with l={l} and c_arr={c_arr}")
                     connection.sendall(pickle.dumps({"code": 1, "args": {"secret": s}}))
@@ -69,12 +75,18 @@ def threaded_client(connection):
                 """
                     code 2
                     share_generation
-                    params points_matrix, a_coeff
+                    params points_matrix, a_coeff, t
                 """
                 try:
-                    points_matrix = request_dict["request_args"]["points_matrix"]
+                    points_matrix_encrypted = request_dict["request_args"]["points_matrix"]
+
+                    # new inbal
+                    points_matrix_str = crypto.decrypt_message(points_matrix_encrypted, validator.private_key)
+                    points_matrix = pickle.loads(points_matrix_str)
+
                     a_coeff = request_dict["request_args"]["a_coeff"]
-                    s = Validator.share_generation(points_matrix=points_matrix, a_coeff=a_coeff)
+                    t = request_dict["request_args"]["t"]
+                    s = Validator.share_generation(points_matrix=points_matrix, a_coeff=a_coeff, t=t)
                     logging.info(
                         f"Generated a Dealer successfully with points_matrix={points_matrix} and a_coeff={a_coeff}")
                     connection.sendall(pickle.dumps({"code": 1, "args": {"secret": s}}))

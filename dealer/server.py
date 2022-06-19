@@ -6,6 +6,7 @@ from _thread import *
 
 import settings
 from dealer import Dealer
+from utils import crypto
 
 dealer = None
 logging.basicConfig(level=settings.LOG_LEVEL)
@@ -89,9 +90,14 @@ def threaded_client(connection):
                     pop point
                 """
                 try:
-                    point = dealer.pop_point()
+                    real_points = dealer.pop_point()
+
+                    # new inbal
+                    points_str = pickle.dumps(real_points)
+                    encrypted_points = crypto.encrypt_message(points_str, MEMBER_PUBLIC)
+
                     logging.info(f"Popped points successfully")
-                    connection.sendall(pickle.dumps({'code': 1, 'args': {'points': point}}))
+                    connection.sendall(pickle.dumps({'code': 1, 'args': {'points': encrypted_points}}))
                 except IndexError:
                     logging.error(f"All points were delivered")
                     connection.sendall(pickle.dumps({'code': 0}))
