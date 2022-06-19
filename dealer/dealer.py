@@ -73,6 +73,12 @@ class Dealer:
         self.secret = None
         return self.hash
 
+    def get_n(self):
+        return self.n
+
+    def get_t(self):
+        return self.t
+
     def __str__(self):
         return "dealer-> t={}, n={}, r={}, points={}, a_coeff={}".format(self.t, self.n, self.r, self.points_matrix, self.a_list)
 

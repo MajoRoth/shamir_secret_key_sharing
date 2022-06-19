@@ -123,6 +123,22 @@ def threaded_client(connection):
                 logging.info("returned public key")
                 connection.sendall(pickle.dumps({'code': 1, 'args': {'pk': pk}}))
 
+            elif request_dict["request_code"] == "get_n":
+                """
+                    code 7
+                    get public key
+                """
+                logging.info("returned n")
+                connection.sendall(pickle.dumps({'code': 1, 'args': {'n': dealer.get_n()}}))
+
+            elif request_dict["request_code"] == "get_t":
+                """
+                    code 7
+                    get public key
+                """
+                logging.info("returned t")
+                connection.sendall(pickle.dumps({'code': 1, 'args': {'t': dealer.get_t()}}))
+
     connection.close()
 
 

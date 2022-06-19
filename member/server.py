@@ -125,11 +125,9 @@ def threaded_client(connection):
                 """
                     code 6
                     create member with connection to the dealer
-                    params t, n, dealer port and host
+                    params dealer port and host
                 """
                 try:
-                    t = request_dict["request_args"]["t"]
-                    n = request_dict["request_args"]["n"]
                     host = request_dict["request_args"]["host"]
                     port = request_dict["request_args"]["port"]
 
@@ -142,17 +140,29 @@ def threaded_client(connection):
                         logging.error(str(e))
 
                     Response = DealerSocket.recv(settings.RECEIVE_BYTES)
-                    d = {"request_code": 4}
+                    d = {"request_code": "pop_points"}
                     DealerSocket.send(pickle.dumps(d))
                     Response = DealerSocket.recv(settings.RECEIVE_BYTES)
                     pickled_response = pickle.loads(Response) #TODO inbal add encryption
                     points = pickled_response["args"]["points"]
 
-                    d = {"request_code": 5}
+                    d = {"request_code": "gen_a_coeff"}
                     DealerSocket.send(pickle.dumps(d))
                     Response = DealerSocket.recv(settings.RECEIVE_BYTES)
-                    pickled_response = pickle.loads(Response)  # TODO inbal add encryption
+                    pickled_response = pickle.loads(Response)
                     a_coeff = pickled_response["args"]["a_coeff"]
+
+                    d = {"request_code": "get_t"}
+                    DealerSocket.send(pickle.dumps(d))
+                    Response = DealerSocket.recv(settings.RECEIVE_BYTES)
+                    pickled_response = pickle.loads(Response)
+                    t = pickled_response["args"]["t"]
+
+                    d = {"request_code": "get_n"}
+                    DealerSocket.send(pickle.dumps(d))
+                    Response = DealerSocket.recv(settings.RECEIVE_BYTES)
+                    pickled_response = pickle.loads(Response)
+                    n = pickled_response["args"]["n"]
 
                     member.set_parameters(t=t, n=n, a_coeff=a_coeff, points=points)
                     logging.info(f"Generated a Member successfully with t={t}, n={n}, a_coeff={a_coeff}, points={points}")
