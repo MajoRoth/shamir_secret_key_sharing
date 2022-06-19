@@ -58,7 +58,7 @@ def encrypt_message(msg: bytes, public_key) -> bytes:
     return encrypted
 
 
-def decrypt_message(encrypted: bytes, private_key) -> bytes:
+def decrypt_message(encrypted, private_key) -> bytes:
     original_message = private_key.decrypt(
         encrypted,
         padding.OAEP(
