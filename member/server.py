@@ -58,8 +58,10 @@ def threaded_client(connection):
                     t = request_dict["request_args"]["t"]
                     n = request_dict["request_args"]["n"]
                     a_coeff = request_dict["request_args"]["a_coeff"]
+
+                    # new inbal
                     encrypted_points = request_dict["request_args"]["points"]
-                    real_points = pickle.load(crypto.decrypt_message(encrypted_points, member.private_key))
+                    real_points = pickle.loads(crypto.decrypt_message(encrypted_points, member.private_key))
 
                     member.set_parameters(t=t, n=n, a_coeff=a_coeff, points=real_points)
                     logging.info(f"Generated a Member successfully with t={t}, n={n}, a_coeff={a_coeff}, points={real_points}")
@@ -99,6 +101,10 @@ def threaded_client(connection):
                     cv = member.calculate_cv(x_arr=x_arr, l=l)
 
                     logging.info(f"Calculated cv with l={l}, x_arr={x_arr}")
+
+                    # new inbal
+                    cv_str = pickle.dumps(cv)
+                    cv_encrypted = crypto.encrypt_message(cv_str, VAL_PUB_KEY)
                     connection.sendall(pickle.dumps({'code': 1, 'args': {'cv': cv}}))
 
                 except KeyError:

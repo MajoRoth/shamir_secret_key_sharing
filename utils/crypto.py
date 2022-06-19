@@ -46,7 +46,7 @@ def str2pr_key(pem_string):
     return private_key
 
 
-def encrypt_message(msg: bytes, public_key):
+def encrypt_message(msg: bytes, public_key) -> bytes:
     encrypted = public_key.encrypt(
         msg,
         padding.OAEP(
@@ -58,7 +58,7 @@ def encrypt_message(msg: bytes, public_key):
     return encrypted
 
 
-def decrypt_message(encrypted, private_key):
+def decrypt_message(encrypted, private_key) -> bytes:
     original_message = private_key.decrypt(
         encrypted,
         padding.OAEP(
