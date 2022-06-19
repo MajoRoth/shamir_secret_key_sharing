@@ -60,7 +60,8 @@ def threaded_client(connection):
                     connection.sendall(pickle.dumps({"code": 1, "args": {"secret": s}}))
 
                 except KeyError:
-                    logging.error("Invalid parameters for \"request_code\"=1 - secret_reconstructor_for_changeable_threshold")
+                    logging.error(
+                        "Invalid parameters for \"request_code\"=1 - secret_reconstructor_for_changeable_threshold")
                     connection.sendall(pickle.dumps(settings.FAILURE))
 
             elif request_dict["request_code"] == 2:
@@ -73,13 +74,14 @@ def threaded_client(connection):
                     points_matrix = request_dict["request_args"]["points_matrix"]
                     a_coeff = request_dict["request_args"]["a_coeff"]
                     s = Validator.share_generation(points_matrix=points_matrix, a_coeff=a_coeff)
-                    logging.info(f"Generated a Dealer successfully with points_matrix={points_matrix} and a_coeff={a_coeff}")
+                    logging.info(
+                        f"Generated a Dealer successfully with points_matrix={points_matrix} and a_coeff={a_coeff}")
                     connection.sendall(pickle.dumps({"code": 1, "args": {"secret": s}}))
 
                 except KeyError:
-                    logging.error("Invalid parameters for \"request_code\"=1 - secret_reconstructor_for_changeable_threshold")
+                    logging.error(
+                        "Invalid parameters for \"request_code\"=1 - secret_reconstructor_for_changeable_threshold")
                     connection.sendall(pickle.dumps(settings.FAILURE))
-
 
             elif request_dict["request_code"] == 3:
                 """
@@ -99,10 +101,9 @@ def threaded_client(connection):
                         connection.sendall(pickle.dumps(settings.FAILURE))
 
                 except KeyError:
-                    logging.error("Invalid parameters for \"request_code\"=1 - secret_reconstructor_for_changeable_threshold")
+                    logging.error(
+                        "Invalid parameters for \"request_code\"=1 - secret_reconstructor_for_changeable_threshold")
                     connection.sendall(pickle.dumps(settings.FAILURE))
-
-
 
     connection.close()
 

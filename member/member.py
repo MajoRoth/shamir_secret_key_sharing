@@ -6,8 +6,17 @@ import settings
 
 
 class Member:
+    def __int__(self):
+        self.private_key, self.public_key = crypto.generate_keys()
+        self.t = None
+        self.n = None
+        self.r = None
+        self.a_coeff = None
+        self.points = None
+        self.current_l = None
+        self.cv = None
 
-    def __init__(self, t: int, n: int, a_coeff: np.array, points: list):
+    def set_parameters(self, t: int, n: int, a_coeff: np.array, points: list = None):
         self.t = t
         self.n = n
         self.r = math.ceil((n - 1) / t)
@@ -15,7 +24,6 @@ class Member:
         self.points = points
         self.current_l = t
         self.cv = None
-        self.private_key, self.public_key = crypto.generate_keys()
 
     def get_my_x(self):
         return self.points[0][0]
@@ -36,7 +44,7 @@ class Member:
         print(f"\nx_arr={x_arr}")
 
         for i in range(self.r):
-            print(f"ai={self.a_coeff[i]}, hi[xwv]={y_arr[i]}, xwv={x_v}, i={i+1}")
+            print(f"ai={self.a_coeff[i]}, hi[xwv]={y_arr[i]}, xwv={x_v}, i={i + 1}")
             value = self.a_coeff[i] * y_arr[i]
 
             # calculate the product value
@@ -44,8 +52,8 @@ class Member:
             for j in range(l):
                 if x_arr[j] != x_v:
                     print(f'    xwj={x_arr[j]}')
-                    print(f"    curr_product={(i+1-x_arr[j])/(x_v - x_arr[j])}")
-                    prod = prod*(i+1-x_arr[j])/(x_v - x_arr[j])
+                    print(f"    curr_product={(i + 1 - x_arr[j]) / (x_v - x_arr[j])}")
+                    prod = prod * (i + 1 - x_arr[j]) / (x_v - x_arr[j])
 
             print(f"    prod={prod}")
             value *= prod
@@ -60,4 +68,5 @@ class Member:
         pass
 
     def __str__(self):
-        return "member-> t={}, n={}, r={}, a_coeff={}, points={}".format(self.t, self.n, self.r, self.a_coeff, self.points)
+        return "member-> t={}, n={}, r={}, a_coeff={}, points={}".format(self.t, self.n, self.r, self.a_coeff,
+                                                                         self.points)

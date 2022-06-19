@@ -1,7 +1,8 @@
 import logging
 p = 10**4 + 9
 delta = 10**(-5)
-
+PUBLIC_EXPONENT = 65537
+KEY_SIZE = 2048
 
 RECEIVE_BYTES = 4096
 

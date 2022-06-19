@@ -73,8 +73,6 @@ def old_main():
 
 
 def sock_main():
-
-
     import socket
 
     DealerSocket = socket.socket()
@@ -164,7 +162,6 @@ def sock_main():
     MemberSocket.send(pickle.dumps(d))
     Response = MemberSocket.recv(settings.RECEIVE_BYTES)
     print(pickle.loads(Response))
-
 
 
 def new_main():
@@ -313,4 +310,5 @@ if __name__ == '__main__':
     # new2_main()
     # new_main()
     # new3_main()
-    very_new_main()
+    # very_new_main()
+    sock_main()

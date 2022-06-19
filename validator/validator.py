@@ -1,12 +1,15 @@
 from member.member import Member
+from utils import crypto
 from utils.shamir import get_secret
 import settings
 import numpy as np
 from cryptography.hazmat.primitives import hashes
 
 
-
 class Validator:
+    def __init__(self):
+        self.private_key, self.public_key = crypto.generate_keys()
+
     @staticmethod
     def secret_reconstructor_for_changeable_threshold(l: int, c_arr: list) -> float:
         """

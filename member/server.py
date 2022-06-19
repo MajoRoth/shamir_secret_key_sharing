@@ -6,8 +6,9 @@ from _thread import *
 
 import settings
 from member import Member
+from utils import crypto
 
-member = None
+member = Member()
 logging.basicConfig(level=settings.LOG_LEVEL)
 
 
@@ -47,7 +48,6 @@ def threaded_client(connection):
                 logging.error("A key \"request_code\" does not exist")
                 break
 
-
             if request_dict["request_code"] == 1:
                 """
                     code 1
@@ -58,15 +58,16 @@ def threaded_client(connection):
                     t = request_dict["request_args"]["t"]
                     n = request_dict["request_args"]["n"]
                     a_coeff = request_dict["request_args"]["a_coeff"]
-                    points = request_dict["request_args"]["points"]
-                    member = Member(t=t, n=n, a_coeff=a_coeff, points=points)
-                    logging.info(f"Generated a Member successfully with t={t}, n={n}, a_coeff={a_coeff}, points={points}") #TODO
+                    encrypted_points = request_dict["request_args"]["points"]
+                    real_points = pickle.load(crypto.decrypt_message(encrypted_points, member.private_key))
+
+                    member.set_parameters(t=t, n=n, a_coeff=a_coeff, points=real_points)
+                    logging.info(f"Generated a Member successfully with t={t}, n={n}, a_coeff={a_coeff}, points={real_points}")
                     connection.sendall(pickle.dumps(settings.SUCCESS))
 
                 except KeyError:
                     logging.error("Invalid parameters for \"request_code\"=1 - create dealer")
                     connection.sendall(pickle.dumps(settings.FAILURE))
-
 
             elif request_dict["request_code"] == 2:
                 """
@@ -112,8 +113,6 @@ def threaded_client(connection):
                 pk = 1 # get publick key from member
                 logging.info("returned publick key")
                 connection.sendall(pickle.dumps({'code': 1, 'args': {'pk': pk}}))
-
-
 
     connection.close()
 
