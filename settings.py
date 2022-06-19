@@ -1,6 +1,6 @@
 import logging
-# p = 11
-p = 100
+p = 17
+# p = 100
 
 
 RECEIVE_BYTES = 4096
