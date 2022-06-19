@@ -64,7 +64,6 @@ def threaded_client(connection):
                     logging.error("Invalid parameters for \"request_code\"=1 - create dealer")
                     connection.sendall(pickle.dumps(settings.FAILURE))
 
-
             elif request_dict["request_code"] == 2:
                 """
                     code 2
@@ -97,7 +96,6 @@ def threaded_client(connection):
                     logging.error(f"All points were delivered")
                     connection.sendall(pickle.dumps({'code': 0}))
 
-
             elif request_dict["request_code"] == 5:
                 """
                     code 5
@@ -115,6 +113,15 @@ def threaded_client(connection):
                 hash = dealer.get_hash()
                 logging.info(f"Generated hash successfully")
                 connection.sendall(pickle.dumps({'code': 1, 'args': {'hash': hash}}))
+
+            elif request_dict["request_code"] == 7:
+                """
+                    code 7
+                    get public key
+                """
+                pk = 1 # get publick key from dealer
+                logging.info("returned publick key")
+                connection.sendall(pickle.dumps({'code': 1, 'args': {'pk': pk}}))
 
 
 

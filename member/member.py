@@ -56,39 +56,6 @@ class Member:
 
         return self.cv
 
-    # def calculate_cv(self, x_arr: list, l: int) -> float:
-    #     """
-    #     :param x_arr: arr of the members x-es
-    #     :param l: the current threshold
-    #     :return: the c value of this member
-    #     """
-    #
-    #     c_v = 0
-    #     y_arr = self.get_my_y_list()
-    #     x_v = self.get_my_x()
-    #     print(f"\nx_arr={x_arr}")
-    #
-    #     for i in range(self.r):
-    #         print(f"ai={self.a_coeff[i]}, hi[xwv]={y_arr[i]}, xwv={x_v}, i={i+1}")
-    #         value = self.a_coeff[i] * y_arr[i]
-    #
-    #         # calculate the product value
-    #         prod = 1
-    #         for j in range(l):
-    #             if x_arr[j] != x_v:
-    #                 print(f'    xwj={x_arr[j]}')
-    #                 print(f"    curr_product={(i+1-x_arr[j])/(x_v - x_arr[j])}")
-    #                 prod = prod*(i+1-x_arr[j])/(x_v - x_arr[j])
-    #
-    #         print(f"    prod={prod}")
-    #         value *= prod
-    #         c_v += value
-    #
-    #     self.cv = c_v % settings.p
-    #     print(f"c_v={self.cv}")
-    #
-    #     return self.cv
-
     def increase_threshold(self):
         pass
 
