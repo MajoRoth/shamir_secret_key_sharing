@@ -313,71 +313,16 @@ def socket_demo():
     Response = MemberSocket.recv(settings.RECEIVE_BYTES)
     print(Response)
 
-    d = {"request_code": 1, "request_args": {"t": 5, "n": 8}}
-    DealerSocket.send(pickle.dumps(d))
-    Response = DealerSocket.recv(settings.RECEIVE_BYTES)
-    print(pickle.loads(Response))
+    def execute_command(d):
+        DealerSocket.send(pickle.dumps(d))
+        Response = DealerSocket.recv(settings.RECEIVE_BYTES)
+        print(pickle.loads(Response))
 
-    d = {"request_code": 2}
-    DealerSocket.send(pickle.dumps(d))
-    Response = DealerSocket.recv(settings.RECEIVE_BYTES)
-    print(pickle.loads(Response))
+    execute_command({"request_code": "create_dealer", "request_args": {"t": 5, "n": 8}})
+    execute_command({"request_code": "gen_poly_list"})
 
-    d = {"request_code": 4}
-    DealerSocket.send(pickle.dumps(d))
-    Response = DealerSocket.recv(settings.RECEIVE_BYTES)
-    print(pickle.loads(Response))
 
-    d = {"request_code": 4}
-    DealerSocket.send(pickle.dumps(d))
-    Response = DealerSocket.recv(settings.RECEIVE_BYTES)
-    print(pickle.loads(Response))
 
-    d = {"request_code": 4}
-    DealerSocket.send(pickle.dumps(d))
-    Response = DealerSocket.recv(settings.RECEIVE_BYTES)
-    print(pickle.loads(Response))
-
-    d = {"request_code": 4}
-    DealerSocket.send(pickle.dumps(d))
-    Response = DealerSocket.recv(settings.RECEIVE_BYTES)
-    print(pickle.loads(Response))
-
-    d = {"request_code": 4}
-    DealerSocket.send(pickle.dumps(d))
-    Response = DealerSocket.recv(settings.RECEIVE_BYTES)
-    print(pickle.loads(Response))
-
-    d = {"request_code": 4}
-    DealerSocket.send(pickle.dumps(d))
-    Response = DealerSocket.recv(settings.RECEIVE_BYTES)
-    print(pickle.loads(Response))
-
-    d = {"request_code": 4}
-    DealerSocket.send(pickle.dumps(d))
-    Response = DealerSocket.recv(settings.RECEIVE_BYTES)
-    points = pickle.loads(Response)
-    print(pickle.loads(Response))
-
-    d = {"request_code": 5}
-    DealerSocket.send(pickle.dumps(d))
-    Response = DealerSocket.recv(settings.RECEIVE_BYTES)
-    a_coeff = pickle.loads(Response)
-    print(pickle.loads(Response))
-
-    d = {"request_code": 1, "request_args": {
-        "t": 5, "n": 8, "a_coeff": a_coeff, "points": points
-    }}
-    MemberSocket.send(pickle.dumps(d))
-    Response = MemberSocket.recv(settings.RECEIVE_BYTES)
-    print(pickle.loads(Response))
-
-    d = {"request_code": 1, "request_args": {
-        "t": 5, "n": 8, "a_coeff": a_coeff, "points": points
-    }}
-    MemberSocket.send(pickle.dumps(d))
-    Response = MemberSocket.recv(settings.RECEIVE_BYTES)
-    print(pickle.loads(Response))
 
 
 
