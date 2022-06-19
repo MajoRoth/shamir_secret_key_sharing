@@ -2,6 +2,7 @@ import math
 import settings
 import random
 import numpy as np
+from cryptography.hazmat.primitives import hashes
 
 from utils.shamir import get_shares_no_secret, get_x_values, get_secret
 
@@ -63,7 +64,9 @@ class Dealer:
 
     def get_hash(self):
         self.share_generation()
-        self.hash = hash(self.secret)
+        h = hashes.Hash(hashes.SHA256())
+        h.update(bytes(self.secret))
+        self.hash = h.finalize()
         self.secret = None
         return self.hash
 

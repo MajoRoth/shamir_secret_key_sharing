@@ -81,7 +81,7 @@ def threaded_client(connection):
                     connection.sendall(pickle.dumps(settings.FAILURE))
 
 
-            elif request_dict["request_code"] == 2:
+            elif request_dict["request_code"] == 3:
                 """
                     code 3
                     validate secret

@@ -120,7 +120,7 @@ def threaded_client(connection):
                     get public key
                 """
                 pk = 1 # get publick key from dealer
-                logging.info("returned publick key")
+                logging.info("returned public key")
                 connection.sendall(pickle.dumps({'code': 1, 'args': {'pk': pk}}))
 
 
