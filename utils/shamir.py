@@ -8,7 +8,7 @@ from numpy.polynomial.polynomial import polyval
 """
 
 
-def get_shares(k, n, s, x_list = None):
+def get_shares(k, n, s, x_list=None):
     """
     :raises: ValueError if n<k
     :param k: the number of shares that sufficient to know the secret
@@ -27,6 +27,9 @@ def get_shares(k, n, s, x_list = None):
 
     shares = [(x, eval_at(polynom_coefficients, x, settings.p)) for x in x_list]
 
+    print("shares points:", shares)  # TODO for debug remove later
+    print("polynomial coefficients: ", polynom_coefficients)  # TODO for debug remove later
+
     return shares  # TODO return polynom_coefficients for debug, rmove it later
 
 
@@ -40,20 +43,18 @@ def get_shares_no_secret(k, n, x_list=None):
     return get_shares(k, n, random.randrange(0, settings.p), x_list=x_list)
 
 
-
 def get_secret(shares, idx=0):
     """
-    need to get bigger amount of sharers from the treash hold
-    :param shares: gets a list of shares
+    find the y value of a function according to the points in a specific index
+    need to get bigger amount of shares from the threshold
+    :param shares: gets a list of points
+    :param idx:
     :return: the secret
     """
 
-    # TODO need to ad alot of validity checks on the inputs and amount of shares
-    s = lagrange_interpolate(idx, [s[0] for s in shares], [s[1] for s in shares], settings.p)
-    return s
-
-
-
+    # TODO need to ada a lot of validity checks on the inputs and amount of shares
+    secret = lagrange_interpolate(idx, [s[0] for s in shares], [s[1] for s in shares], settings.p)
+    return secret
 
 
 def get_x_values(n, p=settings.p):
@@ -95,7 +96,6 @@ if __name__ == '__main__':
     ax.scatter(x, y, label='data')
 
     y_new = [lagrange_interpolate(t, x, y, settings.p) for t in x_new]
-
 
     ax.plot(x_new, Polynomial(poly.coef[::-1])(x_new), label='lagrange polynom')
     ax.plot(x_new, y_new, label='lagrange polynom modulo')

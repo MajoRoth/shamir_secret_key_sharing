@@ -12,12 +12,12 @@ class Dealer:
         calculates the polynoms and shares the points
     """
 
-    def __init__(self, t, n):
+    def __init__(self, t, n, points_matrix=[], a_list=np.array([])):
         self.t = t
         self.n = n
         self.r = math.ceil((n - 1) / t)
-        self.points_matrix = list()  # matrix of dots [[(1,1), (2,2), ...], [(1,1), (2,2), ...]] each row stands for a polynom
-        self.a_list = np.array([])
+        self.points_matrix = points_matrix  # matrix of dots [[(1,1), (2,2), ...], [(1,1), (2,2), ...]] each row stands for a polynom
+        self.a_list = a_list
         self.pop_count = 0  # private
         self.secret = None
 
@@ -30,6 +30,9 @@ class Dealer:
 
     def get_x_arr(self):  # call only after self.points_matrix has been populated
         return [point[0] for point in self.points_matrix[0]]
+
+    def get_y_of_func_by_index(self, idx):
+        return [y for (x, y) in self.points_matrix[idx]]
 
     def get_points_by_index(self, i):
         return [row[i] for row in self.points_matrix]
