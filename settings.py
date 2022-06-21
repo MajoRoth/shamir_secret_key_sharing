@@ -15,7 +15,7 @@ VALIDATOR_HOST = "127.0.0.1"
 VALIDATOR_PORT = 5407
 
 SUCCESS = {
-    'code': 1
+'code': 1
 }
 
 FAILURE = {

@@ -20,6 +20,8 @@ class MemberServer:
         self.members_connection_details = []  # list of (ip, port)
         self.thread_count = 0
         self.validator_details = None
+        self.voting_time = False
+        self.cv_votes = []
 
     def start(self):
         Thread(target=self.start_cli).start()
@@ -138,25 +140,12 @@ class MemberServer:
             return
 
         ClientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
+        self.voting_time = True
         no_count = 0
         encrypted_cv_arr = []
 
         # connect to each member and send him the voting request
         for (host, port) in self.members_connection_details:
-            if len(encrypted_cv_arr) >= self.member.current_l:
-                # stop the voting and send the encrypted_cv_arr to the validator
-                ClientSocket.close()
-                logging.info("send the cv-s to the validator! your suggest was accepted!")
-                self.validate_cv_list(encrypted_cv_arr)
-                return
-
-            if self.member.n - self.member.current_l < no_count:
-                # stop the voting... yoe lose
-                logging.info("your suggest was rejected:(")
-                ClientSocket.close()
-                return
-
             try:
                 ClientSocket.connect((host, port))
             except socket.error as e:
@@ -165,18 +154,10 @@ class MemberServer:
             logging.info(Response)
 
             # get vote from member
-            d = {"request_code": "voting_request", "request_args": {"req_msg": msg}}
+            d = {"request_code": "voting_request", "request_args": {"ip": self.ip, "port": self.port,
+                                                                    "pk": self.member.public_key,
+                                                                    "req_msg": msg}}
             ClientSocket.send(pickle.dumps(d))
-
-            Response = ClientSocket.recv(settings.RECEIVE_BYTES)
-            pickled_response = pickle.loads(Response)
-
-            vote_result = pickled_response["args"]["vote"]  # y or n
-            if vote_result == "y":
-                encrypted_cv = pickled_response["args"]["cv"]
-                encrypted_cv_arr.append(encrypted_cv)
-            else:
-                no_count += 1
 
         ClientSocket.close()
 
@@ -201,9 +182,13 @@ class MemberServer:
             logging.error(pickled_response['args']['message'])
             ClientSocket.close()
             return
-        encrypted_points = pickled_response["args"]["result"]
-        real_points = pickle.loads(crypto.decrypt_message(encrypted_points, self.member.private_key))
 
+        result = pickled_response["args"]["result"]
+
+        if result is True:
+            print(f"{settings.Colors.client}Your suggestion was accepted and verified!!!!!!{settings.Colors.RESET}")
+        else:
+            print(f"{settings.Colors.client}Your suggestion was not accepted and verified:({settings.Colors.RESET}")
 
         ClientSocket.close()
 
@@ -260,6 +245,8 @@ class MemberServer:
                     self.get_members_details(connection, request_dict)
                 elif request_dict["request_code"] == "voting_request":
                     self.voting(connection, request_dict)
+                elif request_dict["request_code"] == "after_voting":
+                    self.wait_for_votes(connection, request_dict)
                 elif request_dict["request_code"] == "get_pk":  # API
                     pk = 1  # get public key from member
                     logging.info("returned publick key")
@@ -279,17 +266,55 @@ class MemberServer:
         connection.send(pickle.dumps(settings.SUCCESS))
 
     def voting(self, connection, request_dict):
-        msg = request_dict["request_args"]["req_msg"]
-        res = input(f"{settings.Colors.client}member want to get the key. his reason is: {msg}. "
-                    f"do you want to vote? [y/n]{settings.Colors.RESET}")
+        connection.send(settings.SUCCESS)
 
+        ip = request_dict["request_args"]["ip"]
+        port = request_dict["request_args"]["port"]
+        pk = request_dict["request_args"]["pk"]
+        msg = request_dict["request_args"]["req_msg"]
+        res = input(f"{settings.Colors.client}member ip:{ip}, port:{port}, public key:{pk} want to get the key. "
+                    f"his reason is: {msg}. do you want to vote? [y/n]{settings.Colors.RESET}")
+
+        ClientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # connect to the member
+        try:
+            ClientSocket.connect((ip, port))
+        except socket.error as e:
+            logging.error(str(e))
+        Response = ClientSocket.recv(settings.RECEIVE_BYTES)
+        logging.info(Response)
+
+        # send vote
         if res == 'y':
             # send to the member the cv encrypted by the validator public key
             cv = self.member.calculate_cv()
             encrypted_cv = crypto.encrypt_message(str(cv).encode(), self.validator_details[2])
-            connection.sendall(pickle.dumps({'code': 1, 'args': {'vote': 'y', 'cv': encrypted_cv}}))
+            ClientSocket.sendall(pickle.dumps({'request_code': 'after_voting', 'request_args': {'vote': 'y',
+                                                                                                'cv': encrypted_cv}}))
         else:
-            connection.sendall(pickle.dumps({'code': 1, 'args': {'vote': 'n', 'cv': None}}))
+            ClientSocket.sendall(pickle.dumps({'request_code': 'after_voting', 'args': {'vote': 'n', 'cv': None}}))
+
+        ClientSocket.close()
+
+    def wait_for_votes(self, connection, request_dict):
+        vote = request_dict["request_args"]["vote"]
+        if self.voting_time:
+            if vote == 'y':
+                encrypted_cv = request_dict["request_args"]["cv"]
+                self.cv_votes.append(encrypted_cv)
+
+                logging.info("got vote - yes:)")
+
+                if len(self.cv_votes) == self.member.current_l:
+                    self.validate_cv_list(self.cv_votes)
+                    self.cv_votes = []
+                    self.voting_time = False
+            else:
+                logging.info("got vote - no:(")
+        else:
+            logging.error("this member doesn't wait for votes")
+        connection.send(pickle.dumps(settings.SUCCESS))
+
 
 
 if __name__ == "__main__":

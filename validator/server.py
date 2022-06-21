@@ -62,52 +62,8 @@ class ValidatorServer:
                     """
                     self.send_pk(connection)
 
-                elif request_dict["request_code"] == 2:
-                    """
-                        code 2
-                        share_generation
-                        params points_matrix, a_coeff, t
-                    """
-                    try:
-                        points_matrix_encrypted = request_dict["request_args"]["points_matrix"]
-
-                        # new inbal
-                        points_matrix_str = crypto.decrypt_message(points_matrix_encrypted, self.validator.private_key)
-                        points_matrix = pickle.loads(points_matrix_str)
-
-                        a_coeff = request_dict["request_args"]["a_coeff"]
-                        t = request_dict["request_args"]["t"]
-                        s = Validator.share_generation(points_matrix=points_matrix, a_coeff=a_coeff, t=t)
-                        logging.info(
-                            f"Generated a Dealer successfully with points_matrix={points_matrix} and a_coeff={a_coeff}")
-                        connection.sendall(pickle.dumps({"code": 1, "args": {"secret": s}}))
-
-                    except KeyError:
-                        logging.error(
-                            "Invalid parameters for \"request_code\"=1 - secret_reconstructor_for_changeable_threshold")
-                        connection.sendall(pickle.dumps(settings.FAILURE))
-
-                elif request_dict["request_code"] == 3:
-                    """
-                        code 3
-                        validate secret
-                        params secret, hash
-                    """
-                    try:
-                        secret = request_dict["request_args"]["secret"]
-                        h = request_dict["request_args"]["hash"]
-                        res = Validator.validate_secret(secret, h)
-                        if res:
-                            logging.info(f"Secret has been validated successfully")
-                            connection.sendall(pickle.dumps(settings.SUCCESS))
-                        else:
-                            logging.warning(f"Secret is not valid")
-                            connection.sendall(pickle.dumps(settings.FAILURE))
-
-                    except KeyError:
-                        logging.error(
-                            "Invalid parameters for \"request_code\"=1 - secret_reconstructor_for_changeable_threshold")
-                        connection.sendall(pickle.dumps(settings.FAILURE))
+                elif request_dict["request_code"] == 'voting':
+                    self.validate_secret(connection, request_dict)
 
         connection.close()
 
@@ -117,11 +73,26 @@ class ValidatorServer:
         logging.info("return public key")
         connection.sendall(pickle.dumps({'code': 1, 'args': {'pk': self.validator.public_key}}))
 
-    def validate_secret(self):
-        pass
+    def validate_secret(self, connection, request_dict):
+        points_matrix_encrypted = request_dict["request_args"]["points_matrix"]
+
+        # new inbal
+        points_matrix_str = crypto.decrypt_message(points_matrix_encrypted, self.validator.private_key)
+        points_matrix = pickle.loads(points_matrix_str)
+
+        a_coeff = request_dict["request_args"]["a_coeff"]
+        t = request_dict["request_args"]["t"]
+        s = Validator.share_generation(points_matrix=points_matrix, a_coeff=a_coeff, t=t)
+        logging.info(
+            f"Generated a Dealer successfully with points_matrix={points_matrix} and a_coeff={a_coeff}")
+        connection.sendall(pickle.dumps({"code": 1, "args": {"secret": s}}))
 
     def get_details_list(self):
         pass
 
 if __name__ == '__main__':
     validator_entity = ValidatorServer()
+
+
+# todo finish the connection to the validator from his side
+# finish the action of increasing the threshold
