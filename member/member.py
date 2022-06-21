@@ -15,14 +15,16 @@ class Member:
         self.points = None
         self.current_l = None
         self.cv = None
+        self.x_arr = None
 
-    def set_parameters(self, t: int, n: int, a_coeff: np.array, points: list = None):
+    def set_parameters(self, t: int, n: int, a_coeff: np.array, x_arr, points: list = None):
         self.t = t
         self.n = n
         self.r = math.ceil((n - 1) / t)
         self.a_coeff = a_coeff
         self.points = points
         self.current_l = t
+        self.x_arr = x_arr
         self.cv = None
 
     def get_my_x(self):
@@ -31,13 +33,14 @@ class Member:
     def get_my_y_list(self):
         return [p[1] for p in self.points]
 
-    def calculate_cv(self, x_arr: list, l: int) -> float:
+    def calculate_cv(self) -> float:
         """
         :param x_arr: arr of the members x-es
         :param l: the current threshold
         :return: the c value of this member
         """
-
+        x_arr = self.x_arr
+        l = self.current_l
         c_v = 0
         y_arr = self.get_my_y_list()
         x_v = self.get_my_x()
@@ -64,8 +67,12 @@ class Member:
 
         return self.cv
 
-    def increase_threshold(self):
-        pass
+    def is_empty(self):
+        if self.t is None and self.n is None and self.r is None and self.a_coeff is None and self.points is None\
+                and self.current_l is None and self.cv is None:
+            return True
+        return False
 
     def __str__(self):
-        return "member-> t={}, n={}, r={}, a_coeff={}, points={}".format(self.t, self.n, self.r, self.a_coeff, self.points)
+        return "member-> t={}, n={}, r={}, a_coeff={}, points={}".format(self.t, self.n, self.r, self.a_coeff,
+                                                                         self.points)

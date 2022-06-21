@@ -25,8 +25,7 @@ class Dealer:
         self.hash = None
         self.private_key, self.public_key = crypto.generate_keys()
 
-
-    def generate_polynom_list(self):
+    def generate_polynomial_list(self):
         x_list = get_x_values(self.n)
         for i in range(self.r):
             self.points_matrix.append(get_shares_no_secret(self.t, self.n, x_list))
@@ -42,7 +41,7 @@ class Dealer:
     def get_points_by_index(self, i):
         return [row[i] for row in self.points_matrix]
 
-    def pop_point(self):
+    def pop_points(self):
         if self.pop_count >= self.n:
             raise IndexError("All points were delivered")
         self.pop_count += 1
@@ -85,6 +84,6 @@ class Dealer:
 
 if __name__ == "__main__":
     d = Dealer(2, 5)
-    print(d.generate_polynom_list())
+    print(d.generate_polynomial_list())
     print(d.get_points_by_index(0))
 
