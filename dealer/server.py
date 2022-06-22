@@ -14,6 +14,7 @@ logging.basicConfig(level=settings.LOG_LEVEL)
 class DealerServer:
     def __init__(self, ip, port, t, n):
         self.dealer = Dealer(t=t, n=n)
+        self.dealer.generate_a_coeff_list()
         self.dealer.generate_polynomial_list()
         self.ip = ip
         self.port = port
@@ -21,8 +22,9 @@ class DealerServer:
         self.thread_count = 0
         self.validator_details = None
 
+    # -----------------------------------server functions--------------------------------------
+
     def start(self):
-        self.get_validator_details()
         ServerSocket = socket.socket()
 
         try:
@@ -92,6 +94,9 @@ class DealerServer:
                 elif request_dict["request_code"] == "get_x_arr":
                     self.get_x_arr(connection)
 
+                elif request_dict["request_code"] == "start_connection":
+                    self.start_connection_validator(connection, request_dict)
+
         connection.close()
 
     def pop_points(self, connection, request_dict):
@@ -101,15 +106,16 @@ class DealerServer:
             params: pk
         """
         try:
-            pk = request_dict["request_args"]["pk"]
+            pk = crypto.str2pub_key(request_dict["request_args"]["pk"])
 
-            if pk in [member_pk for (member_ip, member_port, member_pk) in self.members_connection_details]:
+            pk_str = crypto.pub_key2str(pk)
+            if pk_str in [crypto.pub_key2str(member_pk) for (member_ip, member_port, member_pk) in self.members_connection_details]:
                 raise Exception("This member already exists")
 
             real_points = self.dealer.pop_points()
 
             points_str = pickle.dumps(real_points)
-            encrypted_points = crypto.encrypt_message(points_str, crypto.str2pub_key(pk))
+            encrypted_points = crypto.encrypt_message(points_str, pk)
 
             logging.info(f"Popped points successfully")
             connection.sendall(pickle.dumps({'code': 1, 'args': {'points': encrypted_points}}))
@@ -126,7 +132,7 @@ class DealerServer:
         if len(self.members_connection_details) >= self.dealer.get_n():
             raise Exception("We already have all members")
 
-        member_pk = request_dict["request_args"]["pk"]
+        member_pk = crypto.str2pub_key(request_dict["request_args"]["pk"])
         member_ip = request_dict["request_args"]["ip"]
         member_port = request_dict["request_args"]["port"]
 
@@ -147,9 +153,8 @@ class DealerServer:
             code 5
             generate a_coeff list
         """
-        a_coeff = self.dealer.generate_a_coeff_list()
         logging.info(f"Generated a_coeff list successfully")
-        connection.sendall(pickle.dumps({'code': 1, 'args': {'a_coeff': a_coeff}}))
+        connection.sendall(pickle.dumps({'code': 1, 'args': {'a_coeff': self.dealer.a_coeff}}))
 
     def get_hash(self, connection):
         """
@@ -166,7 +171,7 @@ class DealerServer:
             get public key
         """
         logging.info("returned public key")
-        connection.sendall(pickle.dumps({'code': 1, 'args': {'pk': self.dealer.public_key}}))
+        connection.sendall(pickle.dumps({'code': 1, 'args': {'pk': crypto.pub_key2str(self.dealer.public_key)}}))
 
     def get_n(self, connection):
         logging.info("returned n")
@@ -181,6 +186,23 @@ class DealerServer:
         logging.info(f"returned x_arr")
         connection.sendall(pickle.dumps({'code': 1, 'args': {'x_arr': x_arr}}))
 
+    def start_connection_validator(self, connection, request_dict):
+        # get ip, port and public key and send t, hashed_secret, a_coeff
+
+        ip = request_dict["request_args"]["ip"]
+        port = request_dict["request_args"]["port"]
+        pk = crypto.str2pub_key(request_dict["request_args"]["pk"])
+        self.validator_details = ip, port, pk
+        logging.info("got validator details")
+
+        hashed_secret = self.dealer.get_hash()
+        encrypted_hashed_secret = crypto.encrypt_message(hashed_secret, pk)
+
+        connection.sendall(pickle.dumps(
+            {'code': 1,
+             'args': {"t": self.dealer.t, "a_coeff": self.dealer.a_coeff, "hashed_secret": encrypted_hashed_secret}}))
+        logging.info("send public params to the validator")
+
     # -----------------------------------client functions--------------------------------------
 
     def send_details(self):
@@ -194,8 +216,14 @@ class DealerServer:
             Response = ClientSocket.recv(settings.RECEIVE_BYTES)
             logging.info(Response)
 
-            d = {"request_code": "send_details", "request_args": {"members_list": self.members_connection_details,
-                                                                  "validator_details": self.validator_details}}
+            # change pk type to string
+            members_connection_details = [(ip, port, crypto.pub_key2str(pk)) for (ip, port, pk) in
+                                          self.members_connection_details]
+            d = {"request_code": "send_details", "request_args": {"members_list": members_connection_details,
+                                                                  "validator_ip": self.validator_details[0],
+                                                                  "validator_port": self.validator_details[1],
+                                                                  "validator_pk": crypto.pub_key2str(
+                                                                      self.validator_details[2])}}
             ClientSocket.send(pickle.dumps(d))
             Response = ClientSocket.recv(settings.RECEIVE_BYTES)
             pickled_response = pickle.loads(Response)
@@ -203,30 +231,10 @@ class DealerServer:
                 logging.error(pickled_response['args']['message'])
                 ClientSocket.close()
                 return
-            logging.info('action succeeded')
+        logging.info('action succeeded - finish sending members details')
 
-    def get_validator_details(self):
-        ClientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-        try:
-            ClientSocket.connect((settings.VALIDATOR_HOST, settings.VALIDATOR_PORT))
-        except socket.error as e:
-            logging.error(str(e))
-        Response = ClientSocket.recv(settings.RECEIVE_BYTES)
-        logging.info(Response)
-
-        d = {"request_code": "get_details"}
-        ClientSocket.send(pickle.dumps(d))
-        Response = ClientSocket.recv(settings.RECEIVE_BYTES)
-        pickled_response = pickle.loads(Response)
-        if pickled_response['code'] == 0:
-            logging.error(pickled_response['args']['message'])
-            ClientSocket.close()
-            return
-        self.validator_details = settings.VALIDATOR_HOST, settings.VALIDATOR_PORT, pickled_response['args']['pk']
-        logging.info('action succeeded')
-        ClientSocket.close()
 
 if __name__ == "__main__":
-    dealer_entity = DealerServer(settings.DEALER_HOST, port=settings.DEALER_PORT, t=int(sys.argv[1]), n=int(sys.argv[2]))
+    dealer_entity = DealerServer(settings.DEALER_HOST, port=settings.DEALER_PORT, t=int(sys.argv[1]),
+                                 n=int(sys.argv[2]))
     dealer_entity.start()

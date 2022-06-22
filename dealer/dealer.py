@@ -14,12 +14,12 @@ class Dealer:
         calculates the polynoms and shares the points
     """
 
-    def __init__(self, t, n, points_matrix=[], a_list=np.array([])):
+    def __init__(self, t, n, points_matrix=[], a_coeff=np.array([])):
         self.t = t
         self.n = n
         self.r = math.ceil((n - 1) / t)
         self.points_matrix = points_matrix  # matrix of dots [[(1,1), (2,2), ...], [(1,1), (2,2), ...]] each row stands for a polynom
-        self.a_list = a_list
+        self.a_coeff = a_coeff
         self.pop_count = 0  # private
         self.secret = None
         self.hash = None
@@ -51,15 +51,14 @@ class Dealer:
         a_arr = []
         for i in range(self.r):
             a_arr.append(random.randrange(1, settings.p))
-        self.a_list = np.array(a_arr)
-        return self.a_list
+        self.a_coeff = np.array(a_arr)
 
     def share_generation(self):
         # create h(i) vector
         h_i = np.array([get_secret(poly_points[:self.t], i + 1) for i, poly_points in enumerate(self.points_matrix)])
 
         # get the secret
-        secret = self.a_list.dot(h_i) % settings.p
+        secret = self.a_coeff.dot(h_i) % settings.p
         self.secret = secret
 
         return secret
@@ -79,7 +78,7 @@ class Dealer:
         return self.t
 
     def __str__(self):
-        return "dealer-> t={}, n={}, r={}, points={}, a_coeff={}".format(self.t, self.n, self.r, self.points_matrix, self.a_list)
+        return "dealer-> t={}, n={}, r={}, points={}, a_coeff={}".format(self.t, self.n, self.r, self.points_matrix, self.a_coeff)
 
 
 if __name__ == "__main__":

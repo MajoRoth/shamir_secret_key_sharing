@@ -19,7 +19,10 @@ class ValidatorServer:
         self.validator = Validator()
         self.thread_count = 0
 
+    # -----------------------------------server functions--------------------------------------
+
     def start(self):
+        self.start_connection_dealer()
         ServerSocket = socket.socket()
 
         try:
@@ -54,45 +57,64 @@ class ValidatorServer:
                     logging.error("A key \"request_code\" does not exist")
                     break
 
-                if request_dict["request_code"] == 'get_details':
-                    """
-                        code 1
-                        secret_reconstructor_for_changeable_threshold
-                        params l, c_arr
-                    """
-                    self.send_pk(connection)
-
-                elif request_dict["request_code"] == 'voting':
+                if request_dict["request_code"] == 'voting':
                     self.validate_secret(connection, request_dict)
 
         connection.close()
 
-    def send_pk(self, connection):
-        # send ip, port and public key to the dealer
-
-        logging.info("return public key")
-        connection.sendall(pickle.dumps({'code': 1, 'args': {'pk': self.validator.public_key}}))
-
     def validate_secret(self, connection, request_dict):
-        points_matrix_encrypted = request_dict["request_args"]["points_matrix"]
+        encrypted_cv_arr = request_dict["request_args"]["encrypted_cv_arr"]
+        cv_arr = []
+        for encrypted_cv in encrypted_cv_arr:
+            curr_cv_str = crypto.decrypt_message(encrypted_cv, self.validator.private_key).decode()
+            print("curr_cv_str: ", curr_cv_str)
+            curr_cv = float(curr_cv_str)
+            cv_arr.append(curr_cv)
 
-        # new inbal
-        points_matrix_str = crypto.decrypt_message(points_matrix_encrypted, self.validator.private_key)
-        points_matrix = pickle.loads(points_matrix_str)
+        secret = self.validator.secret_reconstructor_for_changeable_threshold(cv_arr)
+        res = self.validator.validate_secret(secret)
+        logging.info(f"The result is: {res}")
+        connection.sendall(pickle.dumps({"code": 1, "args": {"result": res}}))
 
-        a_coeff = request_dict["request_args"]["a_coeff"]
-        t = request_dict["request_args"]["t"]
-        s = Validator.share_generation(points_matrix=points_matrix, a_coeff=a_coeff, t=t)
-        logging.info(
-            f"Generated a Dealer successfully with points_matrix={points_matrix} and a_coeff={a_coeff}")
-        connection.sendall(pickle.dumps({"code": 1, "args": {"secret": s}}))
+    # -----------------------------------client functions--------------------------------------
 
-    def get_details_list(self):
-        pass
+    def start_connection_dealer(self):
+        """
+            send the validator details and get the public parameters
+        """
+        ClientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        try:
+            ClientSocket.connect((settings.DEALER_HOST, settings.DEALER_PORT))
+        except socket.error as e:
+            logging.error(str(e))
+        Response = ClientSocket.recv(settings.RECEIVE_BYTES)
+        logging.info(Response)
+
+        d = {"request_code": "start_connection",
+             "request_args": {'ip': self.ip, 'port': self.port, 'pk': crypto.pub_key2str(self.validator.public_key)}}
+        ClientSocket.send(pickle.dumps(d))
+        Response = ClientSocket.recv(settings.RECEIVE_BYTES)
+        pickled_response = pickle.loads(Response)
+
+        if pickled_response['code'] == 0:
+            logging.error(pickled_response['args']['message'])
+            ClientSocket.close()
+            return
+
+        t = pickled_response['args']['t']
+        a_coeff = pickled_response['args']['a_coeff']
+        encrypted_hashed_secret = pickled_response['args']['hashed_secret']
+        hashed_secret = crypto.decrypt_message(encrypted_hashed_secret, self.validator.private_key)
+        self.validator.set_parameters(t, a_coeff, hashed_secret)
+
+        logging.info('action succeeded - the validator and the dealer are connected! ')
+        ClientSocket.close()
+
 
 if __name__ == '__main__':
     validator_entity = ValidatorServer()
+    validator_entity.start()
 
-
-# todo finish the connection to the validator from his side
-# finish the action of increasing the threshold
+# todo finish the action of increasing the threshold
+# todo remember to run the dealer first

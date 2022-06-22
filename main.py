@@ -55,12 +55,12 @@ def old_main():
 
     members = list()
     for i in range(members_num):
-        members.append(member.member.Member(first_threshold, members_num, d.a_list, d.pop_points()))
+        members.append(member.member.Member(first_threshold, members_num, d.a_coeff, d.pop_points()))
         print(f"member number {i} is: {members[i]}")
 
     points = [members[0].points, members[1].points]
     print("The validator points:", points)
-    s = validator.validator.Validator.share_generation(points, np.array(d.a_list), first_threshold)
+    s = validator.validator.Validator.share_generation(points, np.array(d.a_coeff), first_threshold)
     print("The validator key with share_generation (A1): ", s)
 
     # calc cv for each member
@@ -179,12 +179,12 @@ def new_main():
 
     members = list()
     for i in range(members_num):
-        members.append(member.member.Member(first_threshold, members_num, d.a_list, d.pop_points()))
+        members.append(member.member.Member(first_threshold, members_num, d.a_coeff, d.pop_points()))
         print(f"member number {i} is: {members[i]}")
 
     points = [members[0].points, members[1].points]
     print("The validator points:", points)
-    s = validator.validator.Validator.share_generation(points, np.array(d.a_list), first_threshold)
+    s = validator.validator.Validator.share_generation(points, np.array(d.a_coeff), first_threshold)
     print("The validator key with share_generation (A1): ", s)
 
     # calc cv for each member
@@ -219,13 +219,13 @@ def new2_main():
 
     members = list()
     for i in range(members_num):
-        members.append(member.member.Member(first_threshold, members_num, d.a_list, d.pop_points()))
+        members.append(member.member.Member(first_threshold, members_num, d.a_coeff, d.pop_points()))
         print(f"member number {i} is: {members[i]}")
 
     points = [m.points for m in members[:2]]
 
     print("The validator points:", points)
-    s = validator.validator.Validator.share_generation(points, np.array(d.a_list), first_threshold)
+    s = validator.validator.Validator.share_generation(points, np.array(d.a_coeff), first_threshold)
     print("The validator key with share_generation (A1): ", s)
 
     # calc cv for each member
@@ -260,13 +260,13 @@ def new3_main():
 
     members = list()
     for i in range(members_num):
-        members.append(member.member.Member(first_threshold, members_num, d.a_list, d.pop_points()))
+        members.append(member.member.Member(first_threshold, members_num, d.a_coeff, d.pop_points()))
         print(f"member number {i} is: {members[i]}")
 
     points = [m.points for m in members[:2]]
 
     print("The validator points:", points)
-    s = validator.validator.Validator.share_generation(points, np.array(d.a_list), first_threshold)
+    s = validator.validator.Validator.share_generation(points, np.array(d.a_coeff), first_threshold)
     print("The validator key with share_generation (A1): ", s)
 
     # calc cv for each member

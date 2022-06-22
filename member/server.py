@@ -2,6 +2,7 @@ import pickle
 import socket
 import sys
 import logging
+import threading
 import time
 from _thread import *
 from threading import *
@@ -13,6 +14,8 @@ logging.basicConfig(level=settings.LOG_LEVEL)
 
 
 class MemberServer:
+    _lock = threading.RLock()
+
     def __init__(self, ip, port):
         self.member = Member()  # an empty member
         self.ip = ip
@@ -32,20 +35,22 @@ class MemberServer:
 
     def start_cli(self):
         while True:
-            print(f"{settings.Colors.client}what do you want to do? (choose a number){settings.Colors.RESET}")
-            print(f"{settings.Colors.client}[1] - get data from dealer{settings.Colors.RESET}")
-            print(f"{settings.Colors.client}[2] - send a voting requests to others{settings.Colors.RESET}")
-            print(f"{settings.Colors.client}[3] - send a request to increase the threshold{settings.Colors.RESET}")
-            print(f"{settings.Colors.client}[other] - stay in the menu{settings.Colors.RESET}")
-            res = input()
+            with MemberServer._lock:
+                print(f"{settings.Colors.client}What do you want to do? (choose a number){settings.Colors.RESET}")
+                print(f"{settings.Colors.client}[1] - Get data from dealer{settings.Colors.RESET}")
+                print(f"{settings.Colors.client}[2] - Send a voting requests to others{settings.Colors.RESET}")
+                print(f"{settings.Colors.client}[3] - Send a request to increase the threshold{settings.Colors.RESET}")
+                print(f"{settings.Colors.client}[other] - Refresh{settings.Colors.RESET}")
+                res = input()
             if res == '1':
                 self.dealer_sign_up()
             elif res == '2':
-                msg = input("why you need the key?")
+                # todo check the new threshold value (int, under n, positive)
+                msg = input("Why you need the key?")
                 self.voting_request(msg)
             elif res == '3':
-                msg = input("why do you want to increase the threshold?")
-                self.increase_threshold_request(msg)
+                msg = input("Enter the new threshold: ")
+                self.increase_threshold_request(int(msg))
 
     def dealer_sign_up(self, host=settings.DEALER_HOST, port=settings.DEALER_PORT):
         ClientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -135,31 +140,30 @@ class MemberServer:
             logging.error('you are not registered')
             return
 
-        if len(self.members_connection_details) < self.member.n:
+        if len(self.members_connection_details) == 0:
+            logging.error('your members details list is empty')
+            return
+
+        if len(self.members_connection_details) < self.member.n - 1:
             logging.error('not all members connected')
             return
 
-        ClientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.voting_time = True
-        no_count = 0
-        encrypted_cv_arr = []
 
         # connect to each member and send him the voting request
-        for (host, port) in self.members_connection_details:
-            try:
-                ClientSocket.connect((host, port))
-            except socket.error as e:
-                logging.error(str(e))
+        for (host, port, _) in self.members_connection_details:
+            ClientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            ClientSocket.connect((host, port))
+
             Response = ClientSocket.recv(settings.RECEIVE_BYTES)
             logging.info(Response)
 
-            # get vote from member
+            # get vote from member. we send our details in order to be identified
             d = {"request_code": "voting_request", "request_args": {"ip": self.ip, "port": self.port,
-                                                                    "pk": self.member.public_key,
+                                                                    "pk": crypto.pub_key2str(self.member.public_key),
                                                                     "req_msg": msg}}
             ClientSocket.send(pickle.dumps(d))
-
-        ClientSocket.close()
+            ClientSocket.close()
 
     def validate_cv_list(self, encrypted_cv_arr):
         host, port, _ = self.validator_details
@@ -192,18 +196,34 @@ class MemberServer:
 
         ClientSocket.close()
 
-    def increase_threshold_request(self, msg):
-        # TODO
-        ClientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    def increase_threshold_request(self, new_threshold):
+        if self.member.is_empty():
+            logging.error('you are not registered')
+            return
 
-        try:
-            if self.member.is_empty():
-                raise Exception("The member didn't connect to the dealer")
-            pass
-        except KeyError:
-            logging.error("Invalid parameters for \"request_code\"=2 - increase_threshold_request")
-            ClientSocket.sendall(pickle.dumps(settings.FAILURE))
-        pass
+        if len(self.members_connection_details) == 0:
+            logging.error('your members details list is empty')
+            return
+
+        if len(self.members_connection_details) < self.member.n - 1:
+            logging.error('not all members connected')
+            return
+
+        if self.member.is_empty():
+            logging.error("The member didn't connect to the dealer")
+            return
+
+        for (host, port, _) in self.members_connection_details:
+            ClientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            ClientSocket.connect((host, port))
+
+            Response = ClientSocket.recv(settings.RECEIVE_BYTES)
+            logging.info(Response)
+
+            d = {"request_code": "increase_threshold", "request_args": {"new_threshold": new_threshold}}
+            ClientSocket.send(pickle.dumps(d))
+            ClientSocket.close()
+            self.member.current_l = new_threshold
 
     # -----------------------------------server functions--------------------------------------
 
@@ -233,7 +253,7 @@ class MemberServer:
             data = connection.recv(settings.RECEIVE_BYTES)
             if data:
                 request_dict = pickle.loads(data)
-                logging.debug(f"{request_dict}")
+                # logging.debug(f"{request_dict}")
 
                 try:
                     request_dict["request_code"]
@@ -247,35 +267,40 @@ class MemberServer:
                     self.voting(connection, request_dict)
                 elif request_dict["request_code"] == "after_voting":
                     self.wait_for_votes(connection, request_dict)
-                elif request_dict["request_code"] == "get_pk":  # API
-                    pk = 1  # get public key from member
-                    logging.info("returned publick key")
-                    connection.sendall(pickle.dumps({'code': 1, 'args': {'pk': pk}}))
 
         connection.close()
 
     def get_members_details(self, connection, request_dict):
         members_list = request_dict["request_args"]["members_list"]
-        self.validator_details = request_dict["request_args"]["validator_details"]
-        self.members_connection_details = members_list
+        self.validator_details = (request_dict["request_args"]["validator_ip"],
+                                  request_dict["request_args"]["validator_port"],
+                                  crypto.str2pub_key(request_dict["request_args"]["validator_pk"]))
+        self.members_connection_details = [(ip, port, crypto.str2pub_key(pk_str)) for (ip, port, pk_str) in
+                                           members_list]
 
         # delete myself from the list
-        self.members_connection_details.remove((self.ip, self.port, self.member.public_key))
+        for (ip, port, pk) in self.members_connection_details:
+            if crypto.pub_key2str(pk) == crypto.pub_key2str(self.member.public_key):
+                self.members_connection_details.remove((ip, port, pk))
 
         logging.info("got members_connection_details")
         connection.send(pickle.dumps(settings.SUCCESS))
 
-    def voting(self, connection, request_dict):
-        connection.send(settings.SUCCESS)
+        cv = self.member.calculate_cv()
+        self.cv_votes = [crypto.encrypt_message(str(cv).encode(), self.validator_details[2])]
 
+    def voting(self, connection, request_dict):
         ip = request_dict["request_args"]["ip"]
         port = request_dict["request_args"]["port"]
-        pk = request_dict["request_args"]["pk"]
+        pk_str = request_dict["request_args"]["pk"]
         msg = request_dict["request_args"]["req_msg"]
-        res = input(f"{settings.Colors.client}member ip:{ip}, port:{port}, public key:{pk} want to get the key. "
-                    f"his reason is: {msg}. do you want to vote? [y/n]{settings.Colors.RESET}")
+
+        with MemberServer._lock:
+            res = input(f"{settings.Colors.client}member ip:{ip}, port:{port} wants to get the key. "
+                        f"\nHis reason is: {msg}. Do you want to vote? [y/n]{settings.Colors.RESET}")
 
         ClientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
         # connect to the member
         try:
             ClientSocket.connect((ip, port))
@@ -292,7 +317,7 @@ class MemberServer:
             ClientSocket.sendall(pickle.dumps({'request_code': 'after_voting', 'request_args': {'vote': 'y',
                                                                                                 'cv': encrypted_cv}}))
         else:
-            ClientSocket.sendall(pickle.dumps({'request_code': 'after_voting', 'args': {'vote': 'n', 'cv': None}}))
+            ClientSocket.sendall(pickle.dumps({'request_code': 'after_voting', 'request_args': {'vote': 'n', 'cv': None}}))
 
         ClientSocket.close()
 
@@ -307,15 +332,19 @@ class MemberServer:
 
                 if len(self.cv_votes) == self.member.current_l:
                     self.validate_cv_list(self.cv_votes)
-                    self.cv_votes = []
+                    cv = self.member.calculate_cv()
+                    self.cv_votes = [crypto.encrypt_message(str(cv).encode(), self.validator_details[2])]
                     self.voting_time = False
             else:
                 logging.info("got vote - no:(")
         else:
             logging.error("this member doesn't wait for votes")
-        connection.send(pickle.dumps(settings.SUCCESS))
 
+    def increase_threshold(self, connection, request_dict):
+        new_threshold = request_dict["request_args"]["new_threshold"]
 
+        self.member.current_l = new_threshold
+        logging.info("threshold changed... -> new_threshold:", new_threshold)
 
 if __name__ == "__main__":
     member_entity = MemberServer(settings.DEALER_HOST, int(sys.argv[1]))

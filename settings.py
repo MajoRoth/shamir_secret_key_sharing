@@ -1,5 +1,5 @@
 import logging
-p = 10**4 + 9
+p = 17
 delta = 10**(-5)
 PUBLIC_EXPONENT = 65537
 KEY_SIZE = 2048
@@ -21,13 +21,6 @@ SUCCESS = {
 FAILURE = {
     'code': 0
 }
-
-# FAILURE = {
-#     'code': 0,
-#     'args': {
-#         'message': 1
-#     }
-# }
 
 LOG_LEVEL = logging.DEBUG
 
