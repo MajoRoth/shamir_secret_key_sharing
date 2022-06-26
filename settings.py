@@ -1,5 +1,5 @@
 import logging
-p = 17
+p = 43
 delta = 10**(-5)
 PUBLIC_EXPONENT = 65537
 KEY_SIZE = 2048

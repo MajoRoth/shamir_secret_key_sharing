@@ -58,15 +58,19 @@ class MemberServer:
                     except (ConnectionResetError, OSError, socket.error):
                         logging.error('dealer is closed')
                 elif res == '2':
-                    # todo check the new threshold value (int, under n, positive)
                     msg = input("Why you need the key?")
                     self.voting_request(msg)
                 elif res == '3':
+                    # todo check the new threshold value (int, under n, positive)
                     msg = input("Enter the new threshold: ")
-                    self.increase_threshold_request(int(msg))
+                    try:
+                        new_threshold = int(msg)
+                    except ValueError:
+                        logging.error("the new threshold must be an integer!")
+                    self.increase_threshold_request(new_threshold)
                 # elif res == 'y' or res == 'n':
-                    # sys.stdin = StringIO(res)
-                    #MemberServer._lock.acquire()
+                # sys.stdin = StringIO(res)
+                # MemberServer._lock.acquire()
 
     def dealer_sign_up(self, host=settings.DEALER_HOST, port=settings.DEALER_PORT):
         ClientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -210,6 +214,10 @@ class MemberServer:
         ClientSocket.close()
 
     def increase_threshold_request(self, new_threshold):
+        # check the threshold value
+        if new_threshold >= self.member.n or new_threshold < self.member.current_l:
+            logging.error("the new threshold must be smaller than n and bigger or equal then the last threshold!")
+
         if self.member.is_empty():
             logging.error('you are not registered')
             return
@@ -285,7 +293,8 @@ class MemberServer:
                     self.voting(connection, request_dict)
                 elif request_dict["request_code"] == "after_voting":
                     self.wait_for_votes(connection, request_dict)
-
+                elif request_dict["request_code"] == "increase_threshold":
+                    self.increase_threshold(connection, request_dict)
 
         connection.close()
 
@@ -321,7 +330,7 @@ class MemberServer:
         # MemberServer._lock.acquire()
         # self.server_thread.join()
         result = input(f"{settings.Colors.server}member ip:{ip}, port:{port} wants to get the key. "
-                           f"\nHis reason is: {msg}. Do you want to vote? [y/n]{settings.Colors.RESET}")
+                       f"\nHis reason is: {msg}. Do you want to vote? [y/n]{settings.Colors.RESET}")
         print('res: ', result)
         # MemberServer._lock.release()
         self.pause = False
@@ -355,7 +364,6 @@ class MemberServer:
         ClientSocket.close()
 
     def wait_for_votes(self, connection, request_dict):
-        # todo fix it
         vote = request_dict["request_args"]["vote"]
 
         if self.voting_time:
@@ -373,13 +381,13 @@ class MemberServer:
                 self.cv_votes = [crypto.encrypt_message(str(cv).encode(), self.validator_details[2])]
                 self.voting_time = False
         else:
-            logging.error("this member doesn't wait for votes")
+            logging.error("voting is over!")
 
     def increase_threshold(self, connection, request_dict):
         new_threshold = request_dict["request_args"]["new_threshold"]
 
         self.member.current_l = new_threshold
-        logging.info("threshold changed... -> new_threshold:", new_threshold)
+        logging.info("threshold changed... -> new_threshold: " + str(new_threshold))
 
 
 if __name__ == "__main__":
