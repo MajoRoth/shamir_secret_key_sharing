@@ -233,6 +233,9 @@ class DealerServer:
                 return
         logging.info('action succeeded - finish sending members details')
 
+    def close_server(self):
+        pass
+
 
 if __name__ == "__main__":
     dealer_entity = DealerServer(settings.DEALER_HOST, port=settings.DEALER_PORT, t=int(sys.argv[1]),

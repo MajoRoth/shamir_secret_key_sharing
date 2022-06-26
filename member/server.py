@@ -9,6 +9,7 @@ from threading import *
 from member import Member
 from utils import crypto
 import settings
+from io import StringIO
 
 logging.basicConfig(level=settings.LOG_LEVEL)
 
@@ -25,23 +26,27 @@ class MemberServer:
         self.validator_details = None
         self.voting_time = False
         self.cv_votes = []
+        self.have_to_answer = False
+        self.client_thread = Thread(target=self.start_cli)
+        self.server_thread = Thread(target=self.start_serv)
+        self.server_thread.setDaemon(True)
 
     def start(self):
-        Thread(target=self.start_cli).start()
+        self.client_thread.start()
         time.sleep(1)
-        Thread(target=self.start_serv).start()
+        self.server_thread.start()
 
     # -----------------------------------client functions--------------------------------------
 
     def start_cli(self):
         while True:
-            with MemberServer._lock:
-                print(f"{settings.Colors.client}What do you want to do? (choose a number){settings.Colors.RESET}")
-                print(f"{settings.Colors.client}[1] - Get data from dealer{settings.Colors.RESET}")
-                print(f"{settings.Colors.client}[2] - Send a voting requests to others{settings.Colors.RESET}")
-                print(f"{settings.Colors.client}[3] - Send a request to increase the threshold{settings.Colors.RESET}")
-                print(f"{settings.Colors.client}[other] - Refresh{settings.Colors.RESET}")
-                res = input()
+            # with MemberServer._lock:
+            print(f"{settings.Colors.client}What do you want to do? (choose a number){settings.Colors.RESET}")
+            print(f"{settings.Colors.client}[1] - Get data from dealer{settings.Colors.RESET}")
+            print(f"{settings.Colors.client}[2] - Send a voting requests to others{settings.Colors.RESET}")
+            print(f"{settings.Colors.client}[3] - Send a request to increase the threshold{settings.Colors.RESET}")
+            print(f"{settings.Colors.client}[other] - Refresh{settings.Colors.RESET}")
+            res = input()
             if res == '1':
                 self.dealer_sign_up()
             elif res == '2':
@@ -51,6 +56,9 @@ class MemberServer:
             elif res == '3':
                 msg = input("Enter the new threshold: ")
                 self.increase_threshold_request(int(msg))
+            elif res == 'y' or res == 'n':
+                # sys.stdin = StringIO(res)
+                MemberServer._lock.acquire()
 
     def dealer_sign_up(self, host=settings.DEALER_HOST, port=settings.DEALER_PORT):
         ClientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -295,9 +303,14 @@ class MemberServer:
         pk_str = request_dict["request_args"]["pk"]
         msg = request_dict["request_args"]["req_msg"]
 
-        with MemberServer._lock:
-            res = input(f"{settings.Colors.client}member ip:{ip}, port:{port} wants to get the key. "
-                        f"\nHis reason is: {msg}. Do you want to vote? [y/n]{settings.Colors.RESET}")
+        # with MemberServer._lock:
+        # MemberServer._lock.acquire()
+        # sys.stdin = StringIO('5')
+        self.server_thread.join()
+        result = input(f"{settings.Colors.server}member ip:{ip}, port:{port} wants to get the key. "
+                           f"\nHis reason is: {msg}. Do you want to vote? [y/n]{settings.Colors.RESET}")
+        print('res: ', result)
+        MemberServer._lock.release()
 
         ClientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -309,34 +322,39 @@ class MemberServer:
         Response = ClientSocket.recv(settings.RECEIVE_BYTES)
         logging.info(Response)
 
+        print("my vote is: ", result)
+
         # send vote
-        if res == 'y':
+        if result == 'y':
             # send to the member the cv encrypted by the validator public key
             cv = self.member.calculate_cv()
             encrypted_cv = crypto.encrypt_message(str(cv).encode(), self.validator_details[2])
             ClientSocket.sendall(pickle.dumps({'request_code': 'after_voting', 'request_args': {'vote': 'y',
                                                                                                 'cv': encrypted_cv}}))
         else:
-            ClientSocket.sendall(pickle.dumps({'request_code': 'after_voting', 'request_args': {'vote': 'n', 'cv': None}}))
+            ClientSocket.sendall(
+                pickle.dumps({'request_code': 'after_voting', 'request_args': {'vote': 'n', 'cv': None}}))
 
         ClientSocket.close()
 
     def wait_for_votes(self, connection, request_dict):
+        # todo fix it
         vote = request_dict["request_args"]["vote"]
+
         if self.voting_time:
             if vote == 'y':
                 encrypted_cv = request_dict["request_args"]["cv"]
                 self.cv_votes.append(encrypted_cv)
 
                 logging.info("got vote - yes:)")
-
-                if len(self.cv_votes) == self.member.current_l:
-                    self.validate_cv_list(self.cv_votes)
-                    cv = self.member.calculate_cv()
-                    self.cv_votes = [crypto.encrypt_message(str(cv).encode(), self.validator_details[2])]
-                    self.voting_time = False
             else:
                 logging.info("got vote - no:(")
+
+            if len(self.cv_votes) == self.member.current_l:
+                self.validate_cv_list(self.cv_votes)
+                cv = self.member.calculate_cv()
+                self.cv_votes = [crypto.encrypt_message(str(cv).encode(), self.validator_details[2])]
+                self.voting_time = False
         else:
             logging.error("this member doesn't wait for votes")
 
@@ -345,6 +363,7 @@ class MemberServer:
 
         self.member.current_l = new_threshold
         logging.info("threshold changed... -> new_threshold:", new_threshold)
+
 
 if __name__ == "__main__":
     member_entity = MemberServer(settings.DEALER_HOST, int(sys.argv[1]))
