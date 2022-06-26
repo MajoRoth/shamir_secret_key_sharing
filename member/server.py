@@ -29,7 +29,6 @@ class MemberServer:
         self.have_to_answer = False
         self.client_thread = Thread(target=self.start_cli)
         self.server_thread = Thread(target=self.start_serv)
-        self.server_thread.setDaemon(True)
 
     def start(self):
         self.client_thread.start()
@@ -48,7 +47,10 @@ class MemberServer:
             print(f"{settings.Colors.client}[other] - Refresh{settings.Colors.RESET}")
             res = input()
             if res == '1':
-                self.dealer_sign_up()
+                try:
+                    self.dealer_sign_up()
+                except (ConnectionResetError, OSError, socket.error):
+                    logging.error('dealer is closed')
             elif res == '2':
                 # todo check the new threshold value (int, under n, positive)
                 msg = input("Why you need the key?")
@@ -64,10 +66,7 @@ class MemberServer:
         ClientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         # connect to the dealer
-        try:
-            ClientSocket.connect((host, port))
-        except socket.error as e:
-            logging.error(str(e))
+        ClientSocket.connect((host, port))
         Response = ClientSocket.recv(settings.RECEIVE_BYTES)
         logging.info(Response)
 

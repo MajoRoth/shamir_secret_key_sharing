@@ -1,3 +1,4 @@
+import os
 import pickle
 import socket
 import sys
@@ -21,6 +22,7 @@ class DealerServer:
         self.members_connection_details = []
         self.thread_count = 0
         self.validator_details = None
+        self.run_dealer = True
 
     # -----------------------------------server functions--------------------------------------
 
@@ -35,7 +37,7 @@ class DealerServer:
         ServerSocket.listen(5)
         logging.info("dealer server is listening...")
 
-        while True:
+        while self.run_dealer:
             client, address = ServerSocket.accept()
             logging.info("connected to {}:{}".format(address[0], address[1]))
             start_new_thread(self.threaded_client, (client,))
@@ -74,7 +76,13 @@ class DealerServer:
                     self.pop_points(connection, request_dict)
 
                 elif request_dict["request_code"] == "send_details":
-                    self.save_member_details(connection, request_dict)
+                    try:
+                        self.save_member_details(connection, request_dict)
+                    except Exception as e:
+                        if str(e) == 'end dealer':
+                            self.run_dealer = False
+                            connection.close()
+                            return
 
                 elif request_dict["request_code"] == "gen_a_coeff":
                     self.get_a_coeff(connection)
@@ -233,8 +241,8 @@ class DealerServer:
                 return
         logging.info('action succeeded - finish sending members details')
 
-    def close_server(self):
-        pass
+        # turn off the dealer server
+        raise Exception("end dealer")
 
 
 if __name__ == "__main__":
