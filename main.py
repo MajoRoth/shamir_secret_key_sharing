@@ -1,3 +1,6 @@
+import sys
+from io import StringIO
+
 import numpy.polynomial
 from scipy.interpolate import lagrange
 import numpy as np
@@ -356,4 +359,9 @@ if __name__ == '__main__':
     # new_main()
     # new3_main()
     # very_new_main()
-    socket_demo()
+    # socket_demo()
+
+    s = StringIO("hello")
+    sys.stdin = s
+    k = input()
+    print(k)
