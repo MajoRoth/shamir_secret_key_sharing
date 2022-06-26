@@ -35,13 +35,12 @@ class MemberServer:
 
     def start_cli(self):
         while True:
-            with MemberServer._lock:
-                print(f"{settings.Colors.client}What do you want to do? (choose a number){settings.Colors.RESET}")
-                print(f"{settings.Colors.client}[1] - Get data from dealer{settings.Colors.RESET}")
-                print(f"{settings.Colors.client}[2] - Send a voting requests to others{settings.Colors.RESET}")
-                print(f"{settings.Colors.client}[3] - Send a request to increase the threshold{settings.Colors.RESET}")
-                print(f"{settings.Colors.client}[other] - Refresh{settings.Colors.RESET}")
-                res = input()
+            print(f"{settings.Colors.client}What do you want to do? (choose a number){settings.Colors.RESET}")
+            print(f"{settings.Colors.client}[1] - Get data from dealer{settings.Colors.RESET}")
+            print(f"{settings.Colors.client}[2] - Send a voting requests to others{settings.Colors.RESET}")
+            print(f"{settings.Colors.client}[3] - Send a request to increase the threshold{settings.Colors.RESET}")
+            print(f"{settings.Colors.client}[other] - Refresh{settings.Colors.RESET}")
+            res = input()
             if res == '1':
                 self.dealer_sign_up()
             elif res == '2':
@@ -295,9 +294,8 @@ class MemberServer:
         pk_str = request_dict["request_args"]["pk"]
         msg = request_dict["request_args"]["req_msg"]
 
-        with MemberServer._lock:
-            res = input(f"{settings.Colors.client}member ip:{ip}, port:{port} wants to get the key. "
-                        f"\nHis reason is: {msg}. Do you want to vote? [y/n]{settings.Colors.RESET}")
+        res = input(f"{settings.Colors.client}member ip:{ip}, port:{port} wants to get the key. "
+                    f"\nHis reason is: {msg}. Do you want to vote? [y/n]{settings.Colors.RESET}")
 
         ClientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
