@@ -116,5 +116,3 @@ if __name__ == '__main__':
     validator_entity = ValidatorServer()
     validator_entity.start()
 
-# todo finish the action of increasing the threshold
-# todo remember to run the dealer first
