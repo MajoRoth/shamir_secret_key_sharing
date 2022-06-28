@@ -17,6 +17,7 @@ class Member:
         self.current_l = None
         self.cv = None
         self.x_arr = None
+        self.g_matrix = None
 
     def set_parameters(self, t: int, n: int, a_coeff: np.array, x_arr, g_matrix, points: list = None):
         self.t = t
@@ -35,9 +36,9 @@ class Member:
     def get_my_y_list(self):
         return [p[1] for p in self.points]
 
-    def verify_my_points(self, g_matrix):
+    def verify_my_points(self):
         # given my g_matrix check if the
-        g_matrix = g_matrix
+        g_matrix = self.g_matrix
         ans = True
         x = self.get_my_x()
         x_pow = []

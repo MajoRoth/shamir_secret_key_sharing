@@ -16,7 +16,7 @@ class DealerServer:
     def __init__(self, ip, port, t, n):
         self.dealer = Dealer(t=t, n=n)
         self.dealer.generate_a_coeff_list()
-        self.dealer.generate_polynomial_list()
+        self.dealer.generate_polynomial_list_and_g_matrix()
         self.ip = ip
         self.port = port
         self.members_connection_details = []
@@ -63,16 +63,7 @@ class DealerServer:
                     logging.error("A key \"request_code\" does not exist")
                     break
 
-                if request_dict["request_code"] == "get_x_list":
-                    """
-                        code 3
-                        get x list
-                    """
-                    x_list = self.dealer.generate_polynomial_list()
-                    logging.info(f"Returned x list successfully")
-                    connection.sendall(pickle.dumps({'code': 1, 'args': {'x_list': x_list}}))
-
-                elif request_dict["request_code"] == "pop_points":
+                if request_dict["request_code"] == "pop_points":
                     self.pop_points(connection, request_dict)
 
                 elif request_dict["request_code"] == "send_details":
@@ -102,8 +93,12 @@ class DealerServer:
                 elif request_dict["request_code"] == "get_x_arr":
                     self.get_x_arr(connection)
 
+                elif request_dict["request_code"] == "get_g_matrix":
+                    self.get_g_matrix(connection)
+
                 elif request_dict["request_code"] == "start_connection":
                     self.start_connection_validator(connection, request_dict)
+
 
         connection.close()
 
@@ -193,6 +188,11 @@ class DealerServer:
         x_arr = self.dealer.get_x_arr()
         logging.info(f"returned x_arr")
         connection.sendall(pickle.dumps({'code': 1, 'args': {'x_arr': x_arr}}))
+
+    def get_g_matrix(self, connection):
+        g_matrix = self.dealer.get_g_matrix()
+        logging.info(f"returned g_matrix")
+        connection.sendall(pickle.dumps({'code': 1, 'args': {'g_matrix': g_matrix}}))
 
     def start_connection_validator(self, connection, request_dict):
         # get ip, port and public key and send t, hashed_secret, a_coeff

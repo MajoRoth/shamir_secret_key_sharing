@@ -33,9 +33,6 @@ def get_shares(k, n, s, x_list=None):
     return shares  # TODO return polynom_coefficients for debug, rmove it later
 
 
-
-
-
 def get_shares_and_g_matrix(k, n, s, x_list=None):
     """
     :raises: ValueError if n<k
@@ -50,8 +47,8 @@ def get_shares_and_g_matrix(k, n, s, x_list=None):
     polynom_coefficients = [random.randrange(0, settings.p) for _ in range(k - 1)]
     polynom_coefficients.append(s)
 
-    g=settings.g
-    g_polynom_coefficients=polynom_coefficients
+    g = settings.g
+    g_polynom_coefficients = polynom_coefficients[:]
     print("debug reut- polynom_coefficients")
     print(g_polynom_coefficients)
     for i in range(len(g_polynom_coefficients)):
@@ -66,7 +63,7 @@ def get_shares_and_g_matrix(k, n, s, x_list=None):
     print("shares points:", shares)  # TODO for debug remove later
     print("polynomial coefficients: ", polynom_coefficients)  # TODO for debug remove later
     print("g polynomial coefficients: ", g_polynom_coefficients)  # TODO for debug remove later
-    return shares,  g_polynom_coefficients# TODO return polynom_coefficients for debug, rmove it later
+    return shares, g_polynom_coefficients  # TODO return polynom_coefficients for debug, rmove it later
 
 
 def get_shares_no_secret(k, n, x_list=None):
@@ -77,6 +74,7 @@ def get_shares_no_secret(k, n, x_list=None):
         :return: list of shares at the following format, [(1, 8), (4, 22) ... ] with a random secret
     """
     return get_shares(k, n, random.randrange(0, settings.p), x_list=x_list)
+
 
 def get_shares_no_secret_and_g_matrix(k, n, x_list=None):
     """

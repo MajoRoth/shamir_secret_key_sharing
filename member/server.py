@@ -44,11 +44,11 @@ class MemberServer:
             with self.pause_cond:
                 while self.pause:
                     self.pause_cond.wait()
-
                 print(f"{settings.Colors.client}What do you want to do? (choose a number){settings.Colors.RESET}")
                 print(f"{settings.Colors.client}[1] - Get data from dealer{settings.Colors.RESET}")
                 print(f"{settings.Colors.client}[2] - Send a voting requests to others{settings.Colors.RESET}")
                 print(f"{settings.Colors.client}[3] - Send a request to increase the threshold{settings.Colors.RESET}")
+                print(f"{settings.Colors.client}[4] - check g_matrix{settings.Colors.RESET}")
                 print(f"{settings.Colors.client}[other] - Refresh{settings.Colors.RESET}")
                 res = input()
                 logging.debug("Got input {}".format(res))
@@ -61,16 +61,14 @@ class MemberServer:
                     msg = input("Why you need the key?")
                     self.voting_request(msg)
                 elif res == '3':
-                    # todo check the new threshold value (int, under n, positive)
                     msg = input("Enter the new threshold: ")
                     try:
                         new_threshold = int(msg)
                     except ValueError:
                         logging.error("the new threshold must be an integer!")
                     self.increase_threshold_request(new_threshold)
-                # elif res == 'y' or res == 'n':
-                # sys.stdin = StringIO(res)
-                # MemberServer._lock.acquire()
+                elif res == '4':
+                    self.compare_g_matrix()
 
     def dealer_sign_up(self, host=settings.DEALER_HOST, port=settings.DEALER_PORT):
         ClientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -136,6 +134,17 @@ class MemberServer:
             return
         n = pickled_response["args"]["n"]
 
+        # get the g_matrix from the dealer
+        d = {"request_code": "get_g_matrix"}
+        ClientSocket.send(pickle.dumps(d))
+        Response = ClientSocket.recv(settings.RECEIVE_BYTES)
+        pickled_response = pickle.loads(Response)
+        if pickled_response['code'] == 0:
+            logging.error(pickled_response['args']['message'])
+            ClientSocket.close()
+            return
+        g_matrix = pickled_response["args"]["g_matrix"]
+
         # send ip, port and public key to the dealer
         d = {"request_code": "send_details", "request_args": {"ip": self.ip, "port": self.port,
                                                               "pk": crypto.pub_key2str(self.member.public_key)}}
@@ -148,9 +157,14 @@ class MemberServer:
             return
 
         # save the parameters in the member variable
-        self.member.set_parameters(t=t, n=n, a_coeff=a_coeff, x_arr=x_arr, points=real_points)
-        logging.info(f"Generated a Member successfully with t={t}, n={n}, a_coeff={a_coeff}, points={real_points}")
+        self.member.set_parameters(t=t, n=n, a_coeff=a_coeff, x_arr=x_arr, points=real_points, g_matrix=g_matrix)
+        logging.info(f"Generated a Member successfully with t={t}, n={n}, a_coeff={a_coeff}, "
+                     f"points={real_points}, g_matrix={g_matrix}")
         ClientSocket.close()
+
+        # verify the dealer points with feldman's algorithm
+        res = self.member.verify_my_points()
+        logging.info("result of checking the dealer with feldman's algorithm: " + str(res))
 
     def voting_request(self, msg):
         if self.member.is_empty():
@@ -214,13 +228,13 @@ class MemberServer:
         ClientSocket.close()
 
     def increase_threshold_request(self, new_threshold):
-        # check the threshold value
-        if new_threshold >= self.member.n or new_threshold < self.member.current_l:
-            logging.error("the new threshold must be smaller than n and bigger or equal then the last threshold!")
-
         if self.member.is_empty():
             logging.error('you are not registered')
             return
+
+        # check the threshold value
+        if new_threshold >= self.member.n or new_threshold < self.member.current_l:
+            logging.error("the new threshold must be smaller than n and bigger or equal then the last threshold!")
 
         if len(self.members_connection_details) == 0:
             logging.error('your members details list is empty')
@@ -245,6 +259,45 @@ class MemberServer:
             ClientSocket.send(pickle.dumps(d))
             ClientSocket.close()
             self.member.current_l = new_threshold
+
+    def compare_g_matrix(self):
+        if self.member.is_empty():
+            logging.error('you are not registered')
+            return
+
+        if len(self.members_connection_details) == 0:
+            logging.error('your members details list is empty')
+            return
+
+        if len(self.members_connection_details) < self.member.n - 1:
+            logging.error('not all members connected')
+            return
+
+        # connect to each member and send him the get_g_matrix request
+        for (host, port, _) in self.members_connection_details:
+            ClientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            ClientSocket.connect((host, port))
+
+            Response = ClientSocket.recv(settings.RECEIVE_BYTES)
+            logging.info(Response)
+
+            # get vote from member. we send our details in order to be identified
+            d = {"request_code": "get_g_matrix"}
+            ClientSocket.send(pickle.dumps(d))
+            Response = ClientSocket.recv(settings.RECEIVE_BYTES)
+            pickled_response = pickle.loads(Response)
+            if pickled_response['code'] == 0:
+                logging.error(pickled_response['args']['message'])
+                ClientSocket.close()
+                return
+            g_matrix = pickled_response["args"]["g_matrix"]
+
+            if g_matrix == self.member.g_matrix:
+                logging.info(f"g_matrix was verified with the member: {host}:{port}")
+            else:
+                logging.info(f"your g_matrix is different matrix from the matrix of the member: {host}:{port}")
+
+            ClientSocket.close()
 
     # -----------------------------------server functions--------------------------------------
 
@@ -295,6 +348,8 @@ class MemberServer:
                     self.wait_for_votes(connection, request_dict)
                 elif request_dict["request_code"] == "increase_threshold":
                     self.increase_threshold(connection, request_dict)
+                elif request_dict["request_code"] == "get_g_matrix":
+                    self.send_g_matrix(connection, request_dict)
 
         connection.close()
 
@@ -388,6 +443,10 @@ class MemberServer:
 
         self.member.current_l = new_threshold
         logging.info("threshold changed... -> new_threshold: " + str(new_threshold))
+
+    def send_g_matrix(self, connection, request_dict):
+        connection.sendall(pickle.dumps({'code': 1, 'args': {'g_matrix': self.member.g_matrix}}))
+        logging.debug("sent g_matrix")
 
 
 if __name__ == "__main__":

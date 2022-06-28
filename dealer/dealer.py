@@ -26,18 +26,10 @@ class Dealer:
         self.hash = None
         self.private_key, self.public_key = crypto.generate_keys()
 
-    def generate_polynomial_list(self):
-        x_list = get_x_values(self.n)
-        for i in range(self.r):
-            self.points_matrix.append(get_shares_no_secret(self.t, self.n, x_list))
-
-        return self.points_matrix
-
     def get_g_matrix(self):
-        # todo:
         return self.g_matrix
 
-    def generate_polynom_list_and_g_matrix(self):
+    def generate_polynomial_list_and_g_matrix(self):
         x_list = get_x_values(self.n)
         for i in range(self.r):
             shares, g_coff = get_shares_no_secret_and_g_matrix(self.t, self.n, x_list)
@@ -96,7 +88,6 @@ class Dealer:
                                                                                       self.g_matrix)
 if __name__ == "__main__":
     d = Dealer(2, 5)
-    print(d.generate_polynomial_list())
     print(d.generate_polynom_list_and_g_coff())
     print(d.get_points_by_index(0))
     # assume we have list of points, g matrix and the process is:
