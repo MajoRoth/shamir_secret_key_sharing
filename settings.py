@@ -1,17 +1,13 @@
 import logging
-p = 10**4 + 9
-g=
-q=
-# Pick q, p primes such that q | p - 1
-
+p = 43
 delta = 10**(-5)
 PUBLIC_EXPONENT = 65537
 KEY_SIZE = 2048
 
-RECEIVE_BYTES = 4096
+RECEIVE_BYTES = 1000000000
 
 DEALER_HOST = "127.0.0.1"
-DEALER_PORT = 5411
+DEALER_PORT = 5418
 
 MEMBERS = [("127.0.0.1", 5408), ("127.0.0.1", 5402), ("127.0.0.1", 5403), ("127.0.0.1", 5404), ("127.0.0.1", 5405)]
 
@@ -19,7 +15,7 @@ VALIDATOR_HOST = "127.0.0.1"
 VALIDATOR_PORT = 5407
 
 SUCCESS = {
-    'code': 1
+'code': 1
 }
 
 FAILURE = {
@@ -27,3 +23,9 @@ FAILURE = {
 }
 
 LOG_LEVEL = logging.DEBUG
+
+
+class Colors:
+    server = '\033[92m'  # GREEN
+    client = '\033[94m'  # BLUE
+    RESET = '\033[0m'  # RESET COLOR

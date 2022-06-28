@@ -1,6 +1,10 @@
+import sys
+from io import StringIO
+
 import numpy.polynomial
 from scipy.interpolate import lagrange
 import numpy as np
+import socket
 import matplotlib.pyplot as plt
 from numpy.polynomial.polynomial import Polynomial
 
@@ -41,7 +45,7 @@ def old_main():
 
     d = Dealer(t=first_threshold, n=members_num)
     d.generate_a_coeff_list()
-    d.generate_polynom_list()
+    d.generate_polynomial_list()
     x = d.get_x_arr()
 
     y1 = d.get_y_of_func_by_index(0)
@@ -54,12 +58,12 @@ def old_main():
 
     members = list()
     for i in range(members_num):
-        members.append(member.member.Member(first_threshold, members_num, d.a_list, d.pop_point()))
+        members.append(member.member.Member(first_threshold, members_num, d.a_coeff, d.pop_points()))
         print(f"member number {i} is: {members[i]}")
 
     points = [members[0].points, members[1].points]
     print("The validator points:", points)
-    s = validator.validator.Validator.share_generation(points, np.array(d.a_list), first_threshold)
+    s = validator.validator.Validator.share_generation(points, np.array(d.a_coeff), first_threshold)
     print("The validator key with share_generation (A1): ", s)
 
     # calc cv for each member
@@ -73,8 +77,6 @@ def old_main():
 
 
 def sock_main():
-    import socket
-
     DealerSocket = socket.socket()
 
     print('Waiting for connection')
@@ -180,12 +182,12 @@ def new_main():
 
     members = list()
     for i in range(members_num):
-        members.append(member.member.Member(first_threshold, members_num, d.a_list, d.pop_point()))
+        members.append(member.member.Member(first_threshold, members_num, d.a_coeff, d.pop_points()))
         print(f"member number {i} is: {members[i]}")
 
     points = [members[0].points, members[1].points]
     print("The validator points:", points)
-    s = validator.validator.Validator.share_generation(points, np.array(d.a_list), first_threshold)
+    s = validator.validator.Validator.share_generation(points, np.array(d.a_coeff), first_threshold)
     print("The validator key with share_generation (A1): ", s)
 
     # calc cv for each member
@@ -220,13 +222,13 @@ def new2_main():
 
     members = list()
     for i in range(members_num):
-        members.append(member.member.Member(first_threshold, members_num, d.a_list, d.pop_point()))
+        members.append(member.member.Member(first_threshold, members_num, d.a_coeff, d.pop_points()))
         print(f"member number {i} is: {members[i]}")
 
     points = [m.points for m in members[:2]]
 
     print("The validator points:", points)
-    s = validator.validator.Validator.share_generation(points, np.array(d.a_list), first_threshold)
+    s = validator.validator.Validator.share_generation(points, np.array(d.a_coeff), first_threshold)
     print("The validator key with share_generation (A1): ", s)
 
     # calc cv for each member
@@ -261,13 +263,13 @@ def new3_main():
 
     members = list()
     for i in range(members_num):
-        members.append(member.member.Member(first_threshold, members_num, d.a_list, d.pop_point()))
+        members.append(member.member.Member(first_threshold, members_num, d.a_coeff, d.pop_points()))
         print(f"member number {i} is: {members[i]}")
 
     points = [m.points for m in members[:2]]
 
     print("The validator points:", points)
-    s = validator.validator.Validator.share_generation(points, np.array(d.a_list), first_threshold)
+    s = validator.validator.Validator.share_generation(points, np.array(d.a_coeff), first_threshold)
     print("The validator key with share_generation (A1): ", s)
 
     # calc cv for each member
@@ -357,4 +359,9 @@ if __name__ == '__main__':
     # new_main()
     # new3_main()
     # very_new_main()
-    socket_demo()
+    # socket_demo()
+
+    s = StringIO("hello")
+    sys.stdin = s
+    k = input()
+    print(k)
