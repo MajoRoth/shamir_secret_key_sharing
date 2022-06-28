@@ -75,6 +75,16 @@ def threaded_client(connection):
                 logging.debug(f"{points}")
                 connection.sendall(pickle.dumps(settings.SUCCESS))
 
+            elif request_dict["request_code"] == "gen_poly_list_and_g_coff":
+                """
+                    code 2
+                    generate polynoms list
+                """
+                points, g_coff = dealer.generate_polynom_list_and_g_coff()
+                logging.info(f"Generate polynoms list successfully")
+                logging.debug(f"{points}")
+                connection.sendall(pickle.dumps(settings.SUCCESS))
+
             elif request_dict["request_code"] == "get_x_list":
                 """
                     code 3

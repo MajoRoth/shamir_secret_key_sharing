@@ -33,6 +33,42 @@ def get_shares(k, n, s, x_list=None):
     return shares  # TODO return polynom_coefficients for debug, rmove it later
 
 
+
+
+
+def get_shares_and_g_matrix(k, n, s, x_list=None):
+    """
+    :raises: ValueError if n<k
+    :param k: the number of shares that sufficient to know the secret
+    :param n: the number of shares we share
+    :param s: the secret
+    :return: list of shares at the following format, [(1, 8), (4, 22) ... ], [g**a0, g**a1,.., g**a(k-1)]
+    """
+
+    if n < k:
+        raise ValueError("Cannot create less shares then the mandatory amount inorder to interpolate the polynom")
+    polynom_coefficients = [random.randrange(0, settings.p) for _ in range(k - 1)]
+    polynom_coefficients.append(s)
+
+    g=settings.g
+    g_polynom_coefficients=polynom_coefficients
+    print("debug reut- polynom_coefficients")
+    print(g_polynom_coefficients)
+    for i in range(len(g_polynom_coefficients)):
+        g_polynom_coefficients[i] = g ** g_polynom_coefficients[i]
+    print("debug reut- g_polynom_coefficients")
+    print(g_polynom_coefficients)
+    if x_list == None:
+        x_list = get_x_values(n)
+
+    shares = [(x, eval_at(polynom_coefficients, x, settings.p)) for x in x_list]
+
+    print("shares points:", shares)  # TODO for debug remove later
+    print("polynomial coefficients: ", polynom_coefficients)  # TODO for debug remove later
+    print("g polynomial coefficients: ", g_polynom_coefficients)  # TODO for debug remove later
+    return shares,  g_polynom_coefficients# TODO return polynom_coefficients for debug, rmove it later
+
+
 def get_shares_no_secret(k, n, x_list=None):
     """
         :raises: ValueError if n<k
@@ -41,6 +77,15 @@ def get_shares_no_secret(k, n, x_list=None):
         :return: list of shares at the following format, [(1, 8), (4, 22) ... ] with a random secret
     """
     return get_shares(k, n, random.randrange(0, settings.p), x_list=x_list)
+
+def get_shares_no_secret_and_g_matrix(k, n, x_list=None):
+    """
+        :raises: ValueError if n<k
+        :param k: the number of shares that sufficient to know the secret
+        :param n: the number of shares we share
+        :return: list of shares at the following format, [(1, 8), (4, 22) ... ] with a random secret, g_coff for the specific polynom
+    """
+    return get_shares_and_g_matrix(k, n, random.randrange(0, settings.p), x_list=x_list)
 
 
 def get_secret(shares, idx=0):

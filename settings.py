@@ -1,5 +1,9 @@
 import logging
 p = 10**4 + 9
+g=
+q=
+# Pick q, p primes such that q | p - 1
+
 delta = 10**(-5)
 PUBLIC_EXPONENT = 65537
 KEY_SIZE = 2048
