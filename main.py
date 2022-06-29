@@ -353,6 +353,9 @@ def socket_demo():
 if __name__ == '__main__':
     """
         https://numpy.org/doc/stable/reference/routines.polynomials.html
+        
+        
+        
     """
     # old_main()
     # new2_main()
