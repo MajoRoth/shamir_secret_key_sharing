@@ -31,3 +31,9 @@ def div(a, b):
     a = a % P
     b = b % P
     return a * inverse(b) % P
+
+
+def mul(a, b):
+    a = a % P
+    b = b % P
+    return a * b % P

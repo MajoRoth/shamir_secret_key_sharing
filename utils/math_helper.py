@@ -9,7 +9,7 @@ def eval_at(poly, x, prime):
     for coeff in poly:
         accum *= x
         accum += coeff
-        accum %= prime  #TODO the division of prime is here
+        accum %= prime  # TODO the division of prime is here
     return accum
 
 
@@ -54,6 +54,6 @@ def lagrange_interpolate(x, x_s, y_s, p):
         nums.append(np.prod(list(x - o for o in others)))
         dens.append(np.prod(list(cur - o for o in others)))
     den = np.prod(list(dens))
-    num = sum([divmod((nums[i] % p) * (den % p) * (y_s[i] % p), dens[i], p)
-               for i in range(k)])
+    from utils.new_math_helper import div, mul
+    num = sum([div(mul(mul(nums[i], den), y_s[i]), dens[i]) for i in range(k)])
     return (divmod(num, den, p) + p) % p
