@@ -54,9 +54,9 @@ class Member:
             for i in range(t):
                 verify *= g_coff[i] ** x_pow[i]
             if verify != g_y:
-                ans=False
+                ans = False
                 break
-            i+=1
+            i += 1
         return ans
 
     def calculate_cv(self) -> float:
@@ -74,7 +74,7 @@ class Member:
 
         for i in range(self.r):
             # print(f"ai={self.a_coeff[i]}, hi[xwv]={y_arr[i]}, xwv={x_v}, i={i + 1}")
-            value = self.a_coeff[i] * y_arr[i]
+            value = self.a_coeff[i] * y_arr[i] % settings.p
 
             # calculate the product value
             prod = 1
@@ -82,11 +82,12 @@ class Member:
                 if x_arr[j] != x_v:
                     # print(f'    xwj={x_arr[j]}')
                     # print(f"    curr_product={(i + 1 - x_arr[j]) / (x_v - x_arr[j])}")
-                    prod = prod * (i + 1 - x_arr[j]) / (x_v - x_arr[j])
+                    from utils.new_math_helper import div
+                    prod = prod * div((i + 1 - x_arr[j]), (x_v - x_arr[j]))
 
             # print(f"    prod={prod}")
-            value *= prod
-            c_v += value
+            value *= prod % settings.p
+            c_v += value % settings.p
 
         self.cv = c_v % settings.p
         print(f"c_v={self.cv}")
@@ -94,7 +95,7 @@ class Member:
         return self.cv
 
     def is_empty(self):
-        if self.t is None and self.n is None and self.r is None and self.a_coeff is None and self.points is None\
+        if self.t is None and self.n is None and self.r is None and self.a_coeff is None and self.points is None \
                 and self.current_l is None and self.cv is None:
             return True
         return False

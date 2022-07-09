@@ -51,20 +51,20 @@ def get_shares_and_g_matrix(k, n, s, x_list=None):
 
     g = settings.g
     g_polynom_coefficients = polynom_coefficients[:]
-    print("debug reut- polynom_coefficients")
-    print(g_polynom_coefficients)
+    # print("debug reut- polynom_coefficients")
+    # print(g_polynom_coefficients)
     for i in range(len(g_polynom_coefficients)):
         g_polynom_coefficients[i] = g ** g_polynom_coefficients[i]
-    print("debug reut- g_polynom_coefficients")
-    print(g_polynom_coefficients)
+    # print("debug reut- g_polynom_coefficients")
+    # print(g_polynom_coefficients)
     if x_list == None:
         x_list = get_x_values(n)
 
     shares = [(x, eval_at(polynom_coefficients, x, settings.p)) for x in x_list]
 
-    print("shares points:", shares)  # TODO for debug remove later
-    print("polynomial coefficients: ", polynom_coefficients)  # TODO for debug remove later
-    print("g polynomial coefficients: ", g_polynom_coefficients)  # TODO for debug remove later
+    # print("shares points:", shares)  # TODO for debug remove later
+    # print("polynomial coefficients: ", polynom_coefficients)  # TODO for debug remove later
+    # print("g polynomial coefficients: ", g_polynom_coefficients)  # TODO for debug remove later
     return shares, g_polynom_coefficients  # TODO return polynom_coefficients for debug, rmove it later
 
 

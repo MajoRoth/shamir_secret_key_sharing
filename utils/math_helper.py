@@ -36,7 +36,7 @@ def divmod(a, b, p):
     calculates a / b mod p
     """
     inv, _ = extended_gcd(b, p)
-    return a * inv
+    return a * inv % p
 
 
 def lagrange_interpolate(x, x_s, y_s, p):
@@ -54,6 +54,6 @@ def lagrange_interpolate(x, x_s, y_s, p):
         nums.append(np.prod(list(x - o for o in others)))
         dens.append(np.prod(list(cur - o for o in others)))
     den = np.prod(list(dens))
-    num = sum([divmod(nums[i] * den * y_s[i] % p, dens[i], p)
+    num = sum([divmod((nums[i] % p) * (den % p) * (y_s[i] % p), dens[i], p)
                for i in range(k)])
     return (divmod(num, den, p) + p) % p
