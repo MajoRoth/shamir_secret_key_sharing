@@ -1,6 +1,6 @@
 import logging
 # todo: reut needs do check it
-p = 7919
+p = 295727
 g = 43
 delta = 10**(-5)
 PUBLIC_EXPONENT = 65537

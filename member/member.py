@@ -1,6 +1,7 @@
 import numpy as np
 import math
 from utils import crypto
+from utils.new_math_helper import div
 
 import settings
 
@@ -82,7 +83,6 @@ class Member:
                 if x_arr[j] != x_v:
                     # print(f'    xwj={x_arr[j]}')
                     # print(f"    curr_product={(i + 1 - x_arr[j]) / (x_v - x_arr[j])}")
-                    from utils.new_math_helper import div
                     prod = prod * div((i + 1 - x_arr[j]), (x_v - x_arr[j]))
 
             # print(f"    prod={prod}")
