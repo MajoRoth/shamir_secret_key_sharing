@@ -8,7 +8,7 @@ from numpy.polynomial.polynomial import polyval
 """
 
 
-def get_shares(k, n, s, x_list=None):
+def get_shares(k, n, s, x_list=None, polynom_coefficients = None):
     """
     :raises: ValueError if n<k
     :param k: the number of shares that sufficient to know the secret
@@ -19,18 +19,20 @@ def get_shares(k, n, s, x_list=None):
 
     if n < k:
         raise ValueError("Cannot create less shares then the mandatory amount inorder to interpolate the polynom")
-    polynom_coefficients = [random.randrange(0, settings.p) for _ in range(k - 1)]
-    polynom_coefficients.append(s)
+
+    if polynom_coefficients is None:
+        polynom_coefficients = [random.randrange(0, settings.p) for _ in range(k - 1)]
+        polynom_coefficients.append(s)
 
     if x_list == None:
         x_list = get_x_values(n)
 
     shares = [(x, eval_at(polynom_coefficients, x, settings.p)) for x in x_list]
 
-    print("shares points:", shares)  # TODO for debug remove later
-    print("polynomial coefficients: ", polynom_coefficients)  # TODO for debug remove later
+    # print("polynomial coefficients: ", polynom_coefficients)  # TODO for debug remove later
+    # print("shares points:", shares)  # TODO for debug remove later
 
-    return shares  # TODO return polynom_coefficients for debug, rmove it later
+    return shares, polynom_coefficients  # TODO return polynom_coefficients for debug, rmove it later
 
 
 def get_shares_and_g_matrix(k, n, s, x_list=None):

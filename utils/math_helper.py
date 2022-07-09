@@ -9,7 +9,7 @@ def eval_at(poly, x, prime):
     for coeff in poly:
         accum *= x
         accum += coeff
-        # accum %= prime
+        accum %= prime  #TODO the division of prime is here
     return accum
 
 
