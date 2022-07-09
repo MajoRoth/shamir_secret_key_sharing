@@ -25,6 +25,7 @@ class MemberServer:
         self.thread_count = 0
         self.validator_details = None
         self.voting_time = False
+        self.votes_num = 0
         self.cv_votes = []
         self.have_to_answer = False
         self.client_thread = Thread(target=self.start_cli)
@@ -232,12 +233,14 @@ class MemberServer:
             logging.error('you are not registered')
             return
 
-        # check the threshold value
-        if new_threshold >= self.member.n or new_threshold < self.member.current_l:
-            logging.error("the new threshold must be smaller than n and bigger or equal then the last threshold!")
-
         if len(self.members_connection_details) == 0:
             logging.error('your members details list is empty')
+            return
+
+        # check the threshold value
+        if new_threshold > self.member.n or new_threshold < self.member.current_l:
+            logging.error(
+                "the new threshold must be smaller or equal than n and bigger or equal then the last threshold!")
             return
 
         if len(self.members_connection_details) < self.member.n - 1:
@@ -419,7 +422,9 @@ class MemberServer:
         ClientSocket.close()
 
     def wait_for_votes(self, connection, request_dict):
+        # todo: finish the voting
         vote = request_dict["request_args"]["vote"]
+        self.votes_num += 1
 
         if self.voting_time:
             if vote == 'y':
@@ -431,10 +436,20 @@ class MemberServer:
                 logging.info("got vote - no:(")
 
             if len(self.cv_votes) == self.member.current_l:
+                logging.info("voting is over!")
                 self.validate_cv_list(self.cv_votes)
                 cv = self.member.calculate_cv()
                 self.cv_votes = [crypto.encrypt_message(str(cv).encode(), self.validator_details[2])]
+                self.votes_num = 0
                 self.voting_time = False
+
+            elif self.votes_num == self.member.n - 1:
+                logging.info("voting is over!")
+                cv = self.member.calculate_cv()
+                self.cv_votes = [crypto.encrypt_message(str(cv).encode(), self.validator_details[2])]
+                self.votes_num = 0
+                self.voting_time = False
+
         else:
             logging.error("voting is over!")
 
