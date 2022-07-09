@@ -1,7 +1,6 @@
 import random
 import settings
-from utils.math_helper import lagrange_interpolate, eval_at
-from numpy.polynomial.polynomial import polyval
+from utils.finite_field_helper import lagrange_interpolate, eval_at
 
 """
     How To Share a Secret
@@ -10,6 +9,8 @@ from numpy.polynomial.polynomial import polyval
 
 def get_shares(k, n, s, x_list=None, polynom_coefficients = None):
     """
+    :param polynom_coefficients:
+    :param x_list:
     :raises: ValueError if n<k
     :param k: the number of shares that sufficient to know the secret
     :param n: the number of shares we share
@@ -24,10 +25,10 @@ def get_shares(k, n, s, x_list=None, polynom_coefficients = None):
         polynom_coefficients = [random.randrange(0, settings.p) for _ in range(k - 1)]
         polynom_coefficients.append(s)
 
-    if x_list == None:
+    if x_list is None:
         x_list = get_x_values(n)
 
-    shares = [(x, eval_at(polynom_coefficients, x, settings.p)) for x in x_list]
+    shares = [(x, eval_at(polynom_coefficients, x)) for x in x_list]
 
     # print("polynomial coefficients: ", polynom_coefficients)  # TODO for debug remove later
     # print("shares points:", shares)  # TODO for debug remove later
@@ -60,7 +61,7 @@ def get_shares_and_g_matrix(k, n, s, x_list=None):
     if x_list == None:
         x_list = get_x_values(n)
 
-    shares = [(x, eval_at(polynom_coefficients, x, settings.p)) for x in x_list]
+    shares = [(x, eval_at(polynom_coefficients, x)) for x in x_list]
 
     # print("shares points:", shares)  # TODO for debug remove later
     # print("polynomial coefficients: ", polynom_coefficients)  # TODO for debug remove later
@@ -98,7 +99,7 @@ def get_secret(shares, idx=0):
     """
 
     # TODO need to ada a lot of validity checks on the inputs and amount of shares
-    secret = lagrange_interpolate(idx, [s[0] for s in shares], [s[1] for s in shares], settings.p)
+    secret = lagrange_interpolate(idx, [s[0] for s in shares], [s[1] for s in shares])
     return secret
 
 
@@ -140,7 +141,7 @@ if __name__ == '__main__':
 
     ax.scatter(x, y, label='data')
 
-    y_new = [lagrange_interpolate(t, x, y, settings.p) for t in x_new]
+    y_new = [lagrange_interpolate(t, x, y) for t in x_new]
 
     ax.plot(x_new, Polynomial(poly.coef[::-1])(x_new), label='lagrange polynom')
     ax.plot(x_new, y_new, label='lagrange polynom modulo')

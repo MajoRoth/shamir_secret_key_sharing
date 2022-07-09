@@ -1,9 +1,8 @@
 import math
 import settings
 import random
-import numpy as np
 from cryptography.hazmat.primitives import hashes
-
+from utils import finite_field_helper as ffh
 from utils import crypto
 from utils.shamir import get_shares_no_secret, get_shares_no_secret_and_g_matrix, get_x_values, get_secret
 
@@ -14,7 +13,7 @@ class Dealer:
         calculates the polynoms and shares the points
     """
 
-    def __init__(self, t, n, points_matrix=[], g_matrix=[], a_coeff=np.array([])):
+    def __init__(self, t, n, points_matrix=[], g_matrix=[], a_coeff=[]):
         self.t = t
         self.n = n
         self.r = math.ceil((n - 1) / t)
@@ -56,14 +55,14 @@ class Dealer:
         a_arr = []
         for i in range(self.r):
             a_arr.append(random.randrange(1, settings.p))
-        self.a_coeff = np.array(a_arr)
+        self.a_coeff = a_arr
 
     def share_generation(self):
         # create h(i) vector
-        h_i = np.array([get_secret(poly_points[:self.t], i + 1) for i, poly_points in enumerate(self.points_matrix)])
+        h_i = [get_secret(poly_points[:self.t], i + 1) for i, poly_points in enumerate(self.points_matrix)]
 
         # get the secret
-        secret = self.a_coeff.dot(h_i) % settings.p
+        secret = ffh.dot(self.a_coeff, h_i)
         self.secret = secret
 
         return secret
@@ -86,11 +85,4 @@ class Dealer:
         return "dealer-> t={}, n={}, r={}, points={}, a_coeff={}, g_matrix={}".format(self.t, self.n, self.r,
                                                                                       self.points_matrix, self.a_coeff,
                                                                                       self.g_matrix)
-if __name__ == "__main__":
-    d = Dealer(2, 5)
-    print(d.generate_polynom_list_and_g_coff())
-    print(d.get_points_by_index(0))
-    # assume we have list of points, g matrix and the process is:
-    g = settings.g  # todo: reut check value to p and g
-    p = settings.p
-    points_list = d.get_points_by_index(0)
+
