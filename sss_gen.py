@@ -45,8 +45,6 @@ def gen_secret(r, a_list, poly_mat):
 
 def main():
     # settings
-    random.seed(10)
-
     n = 10
     t = 4
     r = math.ceil((n - 1) / t)
