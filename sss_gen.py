@@ -65,7 +65,7 @@ def main():
 
     members_mat = list()
     sum = 0
-    l=5
+    l=4  # here inbal
     for i in range(l):
         member_arr = []
         for j in range(r):
