@@ -36,7 +36,7 @@ def divmod(a, b, p):
     calculates a / b mod p
     """
     inv, _ = extended_gcd(b, p)
-    return a * inv % p
+    return (a * inv) % p
 
 
 def lagrange_interpolate(x, x_s, y_s, p):

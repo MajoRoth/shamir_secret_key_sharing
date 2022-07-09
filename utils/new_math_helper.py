@@ -30,10 +30,16 @@ def inverse(n):
 def div(a, b):
     a = a % P
     b = b % P
-    return a * inverse(b) % P
+    return (a * inverse(b)) % P
 
 
 def mul(a, b):
     a = a % P
     b = b % P
-    return a * b % P
+    return (a * b) % P
+
+
+def add(a, b):
+    a = a % P
+    b = b % P
+    return (a + b) % P

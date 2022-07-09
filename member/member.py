@@ -1,7 +1,7 @@
 import numpy as np
 import math
 from utils import crypto
-
+from utils.new_math_helper import div, mul, add
 import settings
 
 
@@ -70,24 +70,18 @@ class Member:
         c_v = 0
         y_arr = self.get_my_y_list()
         x_v = self.get_my_x()
-        # print(f"\nx_arr={x_arr}")
 
         for i in range(self.r):
-            # print(f"ai={self.a_coeff[i]}, hi[xwv]={y_arr[i]}, xwv={x_v}, i={i + 1}")
-            value = self.a_coeff[i] * y_arr[i] % settings.p
+            value = add(self.a_coeff[i], y_arr[i])
 
             # calculate the product value
             prod = 1
             for j in range(l):
                 if x_arr[j] != x_v:
-                    # print(f'    xwj={x_arr[j]}')
-                    # print(f"    curr_product={(i + 1 - x_arr[j]) / (x_v - x_arr[j])}")
-                    from utils.new_math_helper import div
-                    prod = prod * div((i + 1 - x_arr[j]), (x_v - x_arr[j]))
+                    prod = mul(prod, div((i + 1 - x_arr[j]), (x_v - x_arr[j])))
 
-            # print(f"    prod={prod}")
-            value *= prod % settings.p
-            c_v += value % settings.p
+            value = mul(value, prod)
+            c_v = add(c_v, value)
 
         self.cv = c_v % settings.p
         print(f"c_v={self.cv}")
