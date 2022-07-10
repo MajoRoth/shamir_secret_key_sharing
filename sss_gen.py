@@ -35,6 +35,7 @@ def main():
         members_list.append(member)
 
         print("member number: {}".format(i))
+        print(member.verify_my_points())
         print(str(member))
         print(f'cv = {cv}\n')
 

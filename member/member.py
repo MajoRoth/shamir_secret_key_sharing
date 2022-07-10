@@ -37,26 +37,27 @@ class Member:
 
     def verify_my_points(self):
         # given my g_matrix check if the
-        g_matrix = self.g_matrix
-        ans = True
+        g_matrix = self.g_matrix  # mod q
         x = self.get_my_x()
         x_pow = []
         t = self.t
+
         for i in range(t):
-            x_pow.append(x ** i)
+            x_pow.append(x ** i)  # i<t
         x_pow.reverse()
-        i = 0
-        for p in self.points:
-            g_y = settings.g ** p[1]
+
+        for i, (x, y) in enumerate(self.points):
+            g_y = pow(settings.g, y, settings.q)
             g_coff = g_matrix[i]
             verify = 1
-            for i in range(t):
-                verify *= g_coff[i] ** x_pow[i]
+
+            for j in range(t):
+                verify = verify * pow(g_coff[j], x_pow[j], settings.q) % settings.q
+
             if verify != g_y:
-                ans = False
-                break
-            i += 1
-        return ans
+                return False
+
+        return True
 
     def calculate_cv(self) -> float:
         """

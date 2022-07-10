@@ -1,7 +1,9 @@
 import logging
 # todo: reut needs do check it
-p = 10013071
-g = 43
+p = 13
+g = 3
+q = g**p
+
 delta = 10**(-5)
 PUBLIC_EXPONENT = 65537
 KEY_SIZE = 2048
