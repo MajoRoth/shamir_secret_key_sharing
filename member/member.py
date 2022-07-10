@@ -1,3 +1,4 @@
+import logging
 import math
 from utils import crypto
 from utils import finite_field_helper as ffh
@@ -85,7 +86,7 @@ class Member:
             c_v = ffh.add(c_v, value)
 
         self.cv = c_v % settings.p
-        print(f"c_v={self.cv}")
+        logging.info(f"c_v={self.cv}")
 
         return self.cv
 

@@ -6,8 +6,8 @@ import settings
 
 def main():
     # settings
-    n = 7
-    t = 3
+    n = 6
+    t = 4
     r = math.ceil((n - 1) / t)
     print(f"params: n = {n}, t = {t}, r = {r}")
     print('--------------------------------------------\n')
@@ -21,7 +21,7 @@ def main():
     print('\n--------------------------------------------\n')
 
     # create n members -> each one with his own shares. change the threshold to l
-    l = 6
+    l = 5
     c_arr = []
     members_list = []
     idx_list = []

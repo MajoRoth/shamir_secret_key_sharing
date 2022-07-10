@@ -86,4 +86,3 @@ class Dealer:
         return "dealer-> t={}, n={}, r={}, points={}, a_coeff={}, g_matrix={}".format(self.t, self.n, self.r,
                                                                                       self.points_matrix, self.a_coeff,
                                                                                       self.g_matrix)
-
