@@ -30,11 +30,14 @@ class Dealer:
         return self.g_matrix
 
     def generate_polynomial_list_and_g_matrix(self):
+        self.g_matrix = list()
+        self.points_matrix = list()
         x_list = get_x_values(self.n)
         for i in range(self.r):
             shares, g_coff = get_shares_no_secret_and_g_matrix(self.t, self.n, x_list)
             self.points_matrix.append(shares)
             self.g_matrix.append(g_coff)
+
         return self.points_matrix, self.g_matrix
 
     def get_x_arr(self):  # call only after self.points_matrix has been populated

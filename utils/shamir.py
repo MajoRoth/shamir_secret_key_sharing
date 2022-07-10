@@ -46,8 +46,6 @@ def get_shares_and_g_matrix(k, n, s, x_list=None):
         raise ValueError("Cannot create less shares then the mandatory amount inorder to interpolate the polynom")
     polynom_coefficients = [random.randrange(0, settings.p) for _ in range(k - 1)]
     polynom_coefficients.append(s)
-    random.seed(0)
-
     g_polynom_coefficients = list()
 
     for i in range(len(polynom_coefficients)):
