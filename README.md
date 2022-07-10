@@ -14,4 +14,4 @@ fully detailed documentation can be found at the [pdf](https://github.com/MajoRo
 you can look at benchmarks.py to see examples of using the code as a package.
 
 
-A video is appended that demonstrating the use of the sockets
+A [video](https://drive.google.com/file/d/1dfYmJvFfkKkaLDh1SEnXa9FqpZX95lCA/view?usp=sharing) is appended that demonstrating the use of the sockets.
