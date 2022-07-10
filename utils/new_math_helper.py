@@ -34,6 +34,7 @@ def div(a, b):
 
 
 def mul(a, b):
+    print(type(a), type(b))
     a = a % P
     b = b % P
     return (a * b) % P
