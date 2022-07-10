@@ -3,6 +3,8 @@ p = 545579
 g = 67
 q = 1091159  # chosen according to the constraint: p|q-1
 
+
+
 delta = 10**(-5)
 PUBLIC_EXPONENT = 65537
 KEY_SIZE = 2048
