@@ -19,6 +19,7 @@ class Member:
         self.cv = None
         self.x_arr = None
         self.g_matrix = None
+        self.index = None
 
     def set_parameters(self, t: int, n: int, a_coeff, x_arr, g_matrix, points: list = None):
         self.t = t
