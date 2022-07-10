@@ -402,6 +402,8 @@ class MemberServer:
         logging.info(Response)
 
         # send vote
+
+
         if result == 'y':
             # send to the member the cv encrypted by the validator public key
             cv = self.member.calculate_cv()
@@ -412,6 +414,11 @@ class MemberServer:
         else:
             ClientSocket.sendall(
                 pickle.dumps({'request_code': 'after_voting', 'request_args': {'vote': 'n', 'cv': None}}))
+            ClientSocket.close()
+            return
+
+        #
+
 
         ClientSocket.close()
 

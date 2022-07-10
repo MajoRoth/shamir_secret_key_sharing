@@ -21,15 +21,20 @@ class Validator:
         :param c_arr: cv values of each member
         :return:
         """
+        print("c_arr: ", c_arr)
+
         # calculate the secret
         secret = ffh.sum(c_arr)
         return secret
 
     def validate_secret(self, secret):
+        print('secret = ', secret)
         s = round(secret)
         h = hashes.Hash(hashes.SHA256())
         h.update(bytes(s))
-        return h.finalize() == self.hashed_secret
+        ans = h.finalize() == self.hashed_secret
+        print("ans: ", ans)
+        return ans
 
 
 

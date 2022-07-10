@@ -64,7 +64,7 @@ class ValidatorServer:
         cv_arr = []
         for encrypted_cv in encrypted_cv_arr:
             curr_cv_str = crypto.decrypt_message(encrypted_cv, self.validator.private_key).decode()
-            logging.info("curr_cv_str: ", curr_cv_str)
+            logging.info("curr_cv_str: {}".format(curr_cv_str))
             curr_cv = float(curr_cv_str)
             cv_arr.append(curr_cv)
 

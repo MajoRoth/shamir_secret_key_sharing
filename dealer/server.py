@@ -63,7 +63,6 @@ class DealerServer:
         """
         gets message from a client and perform the suitable action
         :param connection: the connection between the dealer server to the current client
-        :return:
         """
         connection.send(str.encode('Welcome to the Server'))
 
@@ -87,7 +86,7 @@ class DealerServer:
                 elif request_dict["request_code"] == "send_details":
                     try:
                         self.save_member_details(connection, request_dict)
-                    except Exception as e:
+                    except Exception as e:  # if the dealer ended
                         if str(e) == 'end dealer':
                             self.run_dealer = False
                             connection.close()
@@ -117,14 +116,14 @@ class DealerServer:
                 elif request_dict["request_code"] == "start_connection":
                     self.start_connection_validator(connection, request_dict)
 
-
         connection.close()
 
     def pop_points(self, connection, request_dict):
         """
-            code 4
-            pop point
-            params: pk
+
+        :param connection:
+        :param request_dict:
+        :return:
         """
         try:
             pk = crypto.str2pub_key(request_dict["request_args"]["pk"])

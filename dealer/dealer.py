@@ -114,7 +114,7 @@ class Dealer:
         # get the secret
         secret = ffh.dot(self.a_coeff, h_i)
         self.secret = secret
-
+        print("secret: ", secret)
         return secret
 
     def get_hash(self):
