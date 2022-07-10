@@ -61,7 +61,7 @@ class Member:
 
         return True
 
-    def calculate_cv(self) -> float:
+    def calculate_cv(self, member_idx) -> float:
         """
         :param x_arr: arr of the members x-es
         :param l: the current threshold
@@ -79,8 +79,8 @@ class Member:
             # calculate the product value
             prod = 1
             for j in range(l):
-                if x_arr[j] != x_v:
-                    prod = ffh.mul(prod, ffh.div((i + 1 - x_arr[j]), (x_v - x_arr[j])))
+                if x_arr[member_idx[j]] != x_v:
+                    prod = ffh.mul(prod, ffh.div((i + 1 - x_arr[member_idx[j]]), (x_v - x_arr[member_idx[j]])))
 
             value = ffh.mul(value, prod)
             c_v = ffh.add(c_v, value)

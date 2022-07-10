@@ -1,9 +1,12 @@
 import math
+import random
+
 from dealer.dealer import Dealer
 from member.member import Member
 import settings
 import matplotlib.pyplot as plt
 from datetime import datetime
+from utils.finite_field_helper import sum
 
 def generate_and_validate(n, t, l):
     r = math.ceil((n - 1) / t)
@@ -88,15 +91,13 @@ def calc_secret():
 
 
 if __name__ == "__main__":
+    random.seed(1)
     t = 2
     n = 5
     r = 2
-    dealer = Dealer(t=t, n=n, RSA=False, a_coeff=[1,2], points_matrix=[
-        [(3, 4), (4, 5), (5, 6), (6, 7), (7,8 )],
-        [(3, 7), (4, 9), (5, 11), (6, 13), (7, 15)]
-    ])
-    # dealer.generate_a_coeff_list()
-    # dealer.generate_polynomial_list_and_g_matrix()
+    dealer = Dealer(t=t, n=n, RSA=False)
+    dealer.generate_a_coeff_list()
+    dealer.generate_polynomial_list_and_g_matrix()
     print(dealer.share_generation())
     # print('the secret is: ', dealer.share_generation())
 
@@ -104,12 +105,14 @@ if __name__ == "__main__":
     c_arr = []
     members_list = []
     idx_list = []
-    for i in range(n):
+
+    l=3
+    for i in range(5):
         idx_list.append(i)
         member = Member(RSA=False)
         member.set_parameters(t, n, dealer.a_coeff, dealer.get_x_arr(), dealer.get_g_matrix(), dealer.pop_points())
-        member.current_l = 3
-        cv = member.calculate_cv()
+        member.current_l = l
+        cv = member.calculate_cv([2,3,4])
         c_arr.append(cv)
         members_list.append(member)
 
@@ -120,5 +123,9 @@ if __name__ == "__main__":
 
     print('--------------------------------------------\n')
     print(c_arr)
-    print("sum of cv's: {}")
+    print("sum of cv's: {}", sum(c_arr))
+
+    print((c_arr[0] + c_arr[1] + c_arr[2]) % settings.p)
+    print((c_arr[1] + c_arr[4] + c_arr[2]) % settings.p)
+    print((c_arr[2] + c_arr[3] + c_arr[4]) % settings.p)
 
