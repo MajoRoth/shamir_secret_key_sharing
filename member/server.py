@@ -9,7 +9,6 @@ from threading import *
 from member import Member
 from utils import crypto
 import settings
-from io import StringIO
 
 logging.basicConfig(level=settings.LOG_LEVEL)
 

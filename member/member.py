@@ -1,7 +1,6 @@
-import numpy as np
 import math
 from utils import crypto
-from utils.new_math_helper import div, mul, add
+from utils import finite_field_helper as ffh
 import settings
 
 
@@ -19,7 +18,7 @@ class Member:
         self.x_arr = None
         self.g_matrix = None
 
-    def set_parameters(self, t: int, n: int, a_coeff: np.array, x_arr, g_matrix, points: list = None):
+    def set_parameters(self, t: int, n: int, a_coeff, x_arr, g_matrix, points: list = None):
         self.t = t
         self.n = n
         self.r = math.ceil((n - 1) / t)
@@ -72,16 +71,16 @@ class Member:
         x_v = self.get_my_x()
 
         for i in range(self.r):
-            value = add(self.a_coeff[i], y_arr[i])
+            value = ffh.add(self.a_coeff[i], y_arr[i])
 
             # calculate the product value
             prod = 1
             for j in range(l):
                 if x_arr[j] != x_v:
-                    prod = mul(prod, div((i + 1 - x_arr[j]), (x_v - x_arr[j])))
+                    prod = ffh.mul(prod, ffh.div((i + 1 - x_arr[j]), (x_v - x_arr[j])))
 
-            value = mul(value, prod)
-            c_v = add(c_v, value)
+            value = ffh.mul(value, prod)
+            c_v = ffh.add(c_v, value)
 
         self.cv = c_v % settings.p
         print(f"c_v={self.cv}")

@@ -1,10 +1,7 @@
 import pickle
 import socket
-import sys
 import logging
 from _thread import *
-from threading import *
-import time
 import settings
 from utils import crypto
 from validator import Validator
