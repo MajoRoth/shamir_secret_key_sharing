@@ -26,11 +26,13 @@ class MemberServer:
         self.voting_time = False
         self.votes_num = 0
         self.cv_votes = []
+        self.members_arr = []
         self.have_to_answer = False
         self.client_thread = Thread(target=self.start_cli)
         self.server_thread = Thread(target=self.start_serv)
         self.pause = False
         self.pause_cond = threading.Condition(threading.Lock())
+        self.accepted = False
 
     def start(self):
         self.client_thread.start()
@@ -180,6 +182,7 @@ class MemberServer:
             logging.error('not all members connected')
             return
 
+        self.members_arr = [(None, None, self.member.index)]
         self.voting_time = True
 
         # connect to each member and send him the voting request
@@ -353,6 +356,8 @@ class MemberServer:
                     self.increase_threshold(connection, request_dict)
                 elif request_dict["request_code"] == "get_g_matrix":
                     self.send_g_matrix(connection, request_dict)
+                elif request_dict["request_code"] == "calc_cv":
+                    self.calc_cv(connection, request_dict)
 
         connection.close()
 
@@ -371,9 +376,6 @@ class MemberServer:
 
         logging.info("got members_connection_details")
         connection.send(pickle.dumps(settings.SUCCESS))
-
-        cv = self.member.calculate_cv()
-        self.cv_votes = [crypto.encrypt_message(str(cv).encode(), self.validator_details[2])]
 
     def voting(self, connection, request_dict):
         self.pause = True
@@ -410,24 +412,13 @@ class MemberServer:
             return
 
         # send to the member the answer - y and the index
-
-        # get the index_arr, calculate cv and send it
-
-
-        encrypted_cv = crypto.encrypt_message(str(cv).encode(), self.validator_details[2])
         ClientSocket.sendall(pickle.dumps({'request_code': 'after_voting', 'request_args': {'vote': 'y',
-                                                                                            'cv': encrypted_cv, 'index': self.member.index}}))
-        logging.debug("sent Cv")
-
-        Response = ClientSocket.recv(settings.RECEIVE_BYTES)
-        pickled_response = pickle.loads(Response)
-        dynamic_x_arr = pickled_response['request_args']['x_arr']
-
-        cv = self.member.calculate_cv(dynamic_x_arr)
-
-
-
-
+                                                                                            'index': self.member.index,
+                                                                                            'port': self.port,
+                                                                                            'ip': self.ip}}))
+        # get the index_arr, calculate cv and send it
+        self.accepted = True
+        logging.debug("sent index")
 
         ClientSocket.close()
 
@@ -437,34 +428,77 @@ class MemberServer:
 
         if self.voting_time:
             if vote == 'y':
-                encrypted_cv = request_dict["request_args"]["cv"]
-                self.cv_votes.append(encrypted_cv)
-
+                index = request_dict["request_args"]["index"]
+                port = request_dict["request_args"]["port"]
+                ip = request_dict["request_args"]["ip"]
+                self.members_arr.append((ip, port, index))
                 logging.info("got vote - yes:)")
             else:
                 logging.info("got vote - no:(")
 
-            if len(self.cv_votes) == self.member.current_l:
-                logging.info("voting is over!")
+            if len(self.members_arr) == self.member.current_l:
+                logging.info("we have enough votes, requesting cvs")
+                self.spread_x_arr()
                 self.validate_cv_list(self.cv_votes)
-                cv = self.member.calculate_cv()
-                self.cv_votes = [crypto.encrypt_message(str(cv).encode(), self.validator_details[2])]
+
+                # cv = self.member.calculate_cv([i[2] for i in self.mem])
+                # self.cv_votes = [crypto.encrypt_message(str(cv).encode(), self.validator_details[2])]
+                self.cv_votes = []
                 self.votes_num = 0
                 self.voting_time = False
 
             elif self.votes_num == self.member.n - 1:
-                logging.info("voting is over!")
-                cv = self.member.calculate_cv()
-                self.cv_votes = [crypto.encrypt_message(str(cv).encode(), self.validator_details[2])]
+                logging.info("voting already over!")
+                self.cv_votes = []
                 self.votes_num = 0
                 self.voting_time = False
 
         else:
             self.votes_num = 0
             self.voting_time = False
-            cv = self.member.calculate_cv()
-            self.cv_votes = [crypto.encrypt_message(str(cv).encode(), self.validator_details[2])]
+            self.cv_votes = []
             logging.error("voting is over!")
+
+    def spread_x_arr(self):
+        """
+        send to each user who votes yes - the index arr and wait for cv
+        :return:
+        """
+        cv = self.member.calculate_cv(
+            [i[2] for i in self.members_arr]
+        )
+        encrypted_cv = crypto.encrypt_message(str(cv).encode(), self.validator_details[2])
+        self.cv_votes.append(encrypted_cv)
+        for (host, port, _) in self.members_arr:
+            if host is None or port is None:
+                continue
+            ClientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            ClientSocket.connect((host, port))
+
+            Response = ClientSocket.recv(settings.RECEIVE_BYTES)
+            logging.info(Response)
+
+            # get vote from member. we send our details in order to be identified
+            d = {"request_code": "calc_cv", "request_args": {"x_arr": [i[2] for i in self.members_arr]}}
+            ClientSocket.send(pickle.dumps(d))
+
+            Response = ClientSocket.recv(settings.RECEIVE_BYTES)
+            pickle_resp = pickle.loads(Response)
+            self.cv_votes.append(pickle_resp["request_args"]["cv"])
+            ClientSocket.close()
+
+    def calc_cv(self, connection, request_dict):
+        if self.accepted:
+            x_arr = request_dict["request_args"]["x_arr"]
+            cv = self.member.calculate_cv(x_arr)
+
+            encrypted_cv = crypto.encrypt_message(str(cv).encode(), self.validator_details[2])
+            resp = {
+                "request_args": {"cv": encrypted_cv}
+            }
+            connection.send(pickle.dumps(resp))
+
+        self.accepted = False
 
     def increase_threshold(self, connection, request_dict):
         new_threshold = request_dict["request_args"]["new_threshold"]
