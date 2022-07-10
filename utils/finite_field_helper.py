@@ -51,7 +51,7 @@ def add(a, b):
 def dot(a_arr: list, b_arr: list):
     res = 0
     for a, b in zip(a_arr, b_arr):
-        res = add(res, add(a, b))
+        res = add(res, mul(a, b))
     return res % P
 
 

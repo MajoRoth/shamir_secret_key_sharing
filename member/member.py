@@ -74,7 +74,7 @@ class Member:
         x_v = self.get_my_x()
 
         for i in range(self.r):
-            value = ffh.add(self.a_coeff[i], y_arr[i])
+            value = ffh.mul(self.a_coeff[i], y_arr[i])
 
             # calculate the product value
             prod = 1

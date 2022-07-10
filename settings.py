@@ -1,5 +1,5 @@
 import logging
-p = 545579
+p = 100
 g = 67
 q = 1091159  # chosen according to the constraint: p|q-1
 
