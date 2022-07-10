@@ -120,7 +120,7 @@ class DealerServer:
             encrypted_points = crypto.encrypt_message(points_str, pk)
 
             logging.info(f"Popped points successfully")
-            connection.sendall(pickle.dumps({'code': 1, 'args': {'points': encrypted_points}}))
+            connection.sendall(pickle.dumps({'code': 1, 'args': {'points': encrypted_points, 'index': self.dealer.get_index()}}))
 
         except Exception as e:
             logging.error(f"Error: {e}")
