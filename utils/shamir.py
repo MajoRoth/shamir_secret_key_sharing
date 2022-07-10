@@ -30,10 +30,7 @@ def get_shares(k, n, s, x_list=None, polynom_coefficients = None):
 
     shares = [(x, eval_at(polynom_coefficients, x)) for x in x_list]
 
-    # print("polynomial coefficients: ", polynom_coefficients)  # TODO for debug remove later
-    # print("shares points:", shares)  # TODO for debug remove later
-
-    return shares, polynom_coefficients  # TODO return polynom_coefficients for debug, rmove it later
+    return shares, polynom_coefficients
 
 
 def get_shares_and_g_matrix(k, n, s, x_list=None):
@@ -49,7 +46,6 @@ def get_shares_and_g_matrix(k, n, s, x_list=None):
         raise ValueError("Cannot create less shares then the mandatory amount inorder to interpolate the polynom")
     polynom_coefficients = [random.randrange(0, settings.p) for _ in range(k - 1)]
     polynom_coefficients.append(s)
-    print("poly coeff {}".format( polynom_coefficients))
     random.seed(0)
 
     g_polynom_coefficients = list()
@@ -59,17 +55,13 @@ def get_shares_and_g_matrix(k, n, s, x_list=None):
             pow(settings.g, polynom_coefficients[i], settings.q)
         )
 
-    print(g_polynom_coefficients)
 
     if x_list == None:
         x_list = get_x_values(n)
 
     shares = [(x, eval_at(polynom_coefficients, x)) for x in x_list]
 
-    # print("shares points:", shares)  # TODO for debug remove later
-    # print("polynomial coefficients: ", polynom_coefficients)  # TODO for debug remove later
-    # print("g polynomial coefficients: ", g_polynom_coefficients)  # TODO for debug remove later
-    return shares, g_polynom_coefficients  # TODO return polynom_coefficients for debug, rmove it later
+    return shares, g_polynom_coefficients
 
 
 def get_shares_no_secret(k, n, x_list=None):
@@ -100,8 +92,6 @@ def get_secret(shares, idx=0):
     :param idx:
     :return: the secret
     """
-
-    # TODO need to ada a lot of validity checks on the inputs and amount of shares
     secret = lagrange_interpolate(idx, [s[0] for s in shares], [s[1] for s in shares])
     return secret
 
@@ -134,8 +124,6 @@ if __name__ == '__main__':
     y = [t[1] for t in s]
 
     poly = lagrange(x, y)
-    print(poly)
-    # print("original poly y_0 {}, lagrange y_0 {}".format(Polynomial(original_poly(0), poly(0))))
 
     x_new = np.arange(-1, 10, 1)
 
@@ -148,7 +136,6 @@ if __name__ == '__main__':
 
     ax.plot(x_new, Polynomial(poly.coef[::-1])(x_new), label='lagrange polynom')
     ax.plot(x_new, y_new, label='lagrange polynom modulo')
-    # plt.plot(x_new, 3 * x_new ** 2 - 2 * x_new + 0 * x_new, label = r"$3 x^2 - 2 x$", linestyle = '-.')
     plt.legend()
 
     plt.show()

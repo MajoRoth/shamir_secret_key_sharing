@@ -75,8 +75,8 @@ def eval_at(poly, x):
     """
     res = 0
     for coeff in poly:
-        res = mul(res, x)
-        res = add(res, coeff)
+        res *= x
+        res += coeff
     return res
 
 

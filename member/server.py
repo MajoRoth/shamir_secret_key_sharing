@@ -383,13 +383,10 @@ class MemberServer:
         pk_str = request_dict["request_args"]["pk"]
         msg = request_dict["request_args"]["req_msg"]
 
-        # with MemberServer._lock:
-        # MemberServer._lock.acquire()
-        # self.server_thread.join()
         result = input(f"{settings.Colors.server}member ip:{ip}, port:{port} wants to get the key. "
                        f"\nHis reason is: {msg}. Do you want to vote? [y/n]{settings.Colors.RESET}")
-        print('res: ', result)
-        # MemberServer._lock.release()
+        logging.info('my vote: ', result)
+
         self.pause = False
         self.pause_cond.notify()
         self.pause_cond.release()
@@ -403,8 +400,6 @@ class MemberServer:
             logging.error(str(e))
         Response = ClientSocket.recv(settings.RECEIVE_BYTES)
         logging.info(Response)
-
-        print("my vote is: ", result)
 
         # send vote
         if result == 'y':

@@ -26,7 +26,6 @@ class Validator:
         return secret
 
     def validate_secret(self, secret):
-        # todo check - why round?
         s = round(secret)
         h = hashes.Hash(hashes.SHA256())
         h.update(bytes(s))
