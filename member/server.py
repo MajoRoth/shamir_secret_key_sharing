@@ -403,22 +403,22 @@ class MemberServer:
         logging.info(Response)
 
         # send vote
-
-
-        if result == 'y':
-            # send to the member the cv encrypted by the validator public key
-            cv = self.member.calculate_cv()
-            encrypted_cv = crypto.encrypt_message(str(cv).encode(), self.validator_details[2])
-            ClientSocket.sendall(pickle.dumps({'request_code': 'after_voting', 'request_args': {'vote': 'y',
-                                                                                                'cv': encrypted_cv}}))
-            logging.debug("sent Cv")
-        else:
+        if result != 'y':
             ClientSocket.sendall(
                 pickle.dumps({'request_code': 'after_voting', 'request_args': {'vote': 'n', 'cv': None}}))
             ClientSocket.close()
             return
 
-        #
+        # send to the member the answer - y and the index
+
+        # get the index_arr, calculate cv and send it
+
+        cv = self.member.calculate_cv()
+        encrypted_cv = crypto.encrypt_message(str(cv).encode(), self.validator_details[2])
+        ClientSocket.sendall(pickle.dumps({'request_code': 'after_voting', 'request_args': {'vote': 'y',
+                                                                                            'cv': encrypted_cv}}))
+        logging.debug("sent Cv")
+
 
 
         ClientSocket.close()
