@@ -450,6 +450,10 @@ class MemberServer:
                 self.voting_time = False
 
         else:
+            self.votes_num = 0
+            self.voting_time = False
+            cv = self.member.calculate_cv()
+            self.cv_votes = [crypto.encrypt_message(str(cv).encode(), self.validator_details[2])]
             logging.error("voting is over!")
 
     def increase_threshold(self, connection, request_dict):
