@@ -90,6 +90,7 @@ class MemberServer:
         encrypted_points = pickled_response["args"]["points"]
         real_points = pickle.loads(crypto.decrypt_message(encrypted_points, self.member.private_key))
 
+        self.member.index = pickled_response["args"]["index"]
         # get a_coeff arr from the dealer
         d = {"request_code": "gen_a_coeff"}
         ClientSocket.send(pickle.dumps(d))

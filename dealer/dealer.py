@@ -142,6 +142,11 @@ class Dealer:
         """
         return self.t
 
+    def get_index(self):
+        count = self.member_count
+        self.member_count += 1
+        return count
+
     def __str__(self):
         return "dealer-> t={}, n={}, r={}, points={}, a_coeff={}, g_matrix={}".format(self.t, self.n, self.r,
                                                                                       self.points_matrix, self.a_coeff,
