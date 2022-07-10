@@ -13,7 +13,7 @@ class Dealer:
         calculates the polynoms and shares the points
     """
 
-    def __init__(self, t, n, points_matrix=[], g_matrix=[], a_coeff=[]):
+    def __init__(self, t, n, points_matrix=[], g_matrix=[], a_coeff=[], RSA=True):
         self.t = t
         self.n = n
         self.r = math.ceil((n - 1) / t)
@@ -23,7 +23,8 @@ class Dealer:
         self.pop_count = 0  # private
         self.secret = None
         self.hash = None
-        self.private_key, self.public_key = crypto.generate_keys()
+        if RSA:
+            self.private_key, self.public_key = crypto.generate_keys()
 
     def get_g_matrix(self):
         return self.g_matrix
