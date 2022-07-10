@@ -416,7 +416,6 @@ class MemberServer:
         ClientSocket.close()
 
     def wait_for_votes(self, connection, request_dict):
-        # todo: finish the voting
         vote = request_dict["request_args"]["vote"]
         self.votes_num += 1
 

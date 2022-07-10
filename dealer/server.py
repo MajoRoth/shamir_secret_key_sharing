@@ -12,7 +12,18 @@ logging.basicConfig(level=settings.LOG_LEVEL)
 
 
 class DealerServer:
+    """
+    Implements the dealer server with sockets
+    """
     def __init__(self, ip, port, t, n):
+        """
+        initialize dealer object
+
+        :param ip: the dealer ip
+        :param port: the dealer port
+        :param t: initial threshold
+        :param n: members amount
+        """
         self.dealer = Dealer(t=t, n=n)
         self.dealer.generate_a_coeff_list()
         self.dealer.generate_polynomial_list_and_g_matrix()
@@ -21,11 +32,14 @@ class DealerServer:
         self.members_connection_details = []
         self.thread_count = 0
         self.validator_details = None
-        self.run_dealer = True
+        self.run_dealer = True  # if the dealer server is running
 
     # -----------------------------------server functions--------------------------------------
 
     def start(self):
+        """
+        start the dealer server
+        """
         ServerSocket = socket.socket()
 
         try:
@@ -46,6 +60,11 @@ class DealerServer:
         ServerSocket.close()
 
     def threaded_client(self, connection):
+        """
+        gets message from a client and perform the suitable action
+        :param connection: the connection between the dealer server to the current client
+        :return:
+        """
         connection.send(str.encode('Welcome to the Server'))
 
         while True:
