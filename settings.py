@@ -1,7 +1,9 @@
 import logging
-p = 359
+p = 545579
 g = 67
-q = 719  # chosen according to the constraint: p|q-1
+q = 1091159  # chosen according to the constraint: p|q-1
+
+
 
 delta = 10**(-5)
 PUBLIC_EXPONENT = 65537

@@ -35,6 +35,8 @@ class Dealer:
         if RSA:
             self.private_key, self.public_key = crypto.generate_keys()
 
+        self.member_count = 0
+
     def get_g_matrix(self):
         """
         returns the g_matrix of the dealer
