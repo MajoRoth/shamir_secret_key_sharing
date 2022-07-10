@@ -91,41 +91,5 @@ def calc_secret():
 
 
 if __name__ == "__main__":
-    random.seed(1)
-    t = 2
-    n = 5
-    r = 2
-    dealer = Dealer(t=t, n=n, RSA=False)
-    dealer.generate_a_coeff_list()
-    dealer.generate_polynomial_list_and_g_matrix()
-    print(dealer.share_generation())
-    # print('the secret is: ', dealer.share_generation())
-
-    # create n members -> each one with his own shares. change the threshold to l
-    c_arr = []
-    members_list = []
-    idx_list = []
-
-    l=3
-    for i in range(5):
-        idx_list.append(i)
-        member = Member(RSA=False)
-        member.set_parameters(t, n, dealer.a_coeff, dealer.get_x_arr(), dealer.get_g_matrix(), dealer.pop_points())
-        member.current_l = l
-        cv = member.calculate_cv([2,3,4])
-        c_arr.append(cv)
-        members_list.append(member)
-
-        # print("member number: {}".format(i))
-        # print(member.verify_my_points())
-        print(str(member))
-        # print(f'cv = {cv}\n')
-
-    print('--------------------------------------------\n')
-    print(c_arr)
-    print("sum of cv's: {}", sum(c_arr))
-
-    print((c_arr[0] + c_arr[1] + c_arr[2]) % settings.p)
-    print((c_arr[1] + c_arr[4] + c_arr[2]) % settings.p)
-    print((c_arr[2] + c_arr[3] + c_arr[4]) % settings.p)
+    members()
 
