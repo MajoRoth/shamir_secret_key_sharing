@@ -385,7 +385,7 @@ class MemberServer:
 
         result = input(f"{settings.Colors.server}member ip:{ip}, port:{port} wants to get the key. "
                        f"\nHis reason is: {msg}. Do you want to vote? [y/n]{settings.Colors.RESET}")
-        logging.info('my vote: ', result)
+        logging.info('my vote: {}'.format(result))
 
         self.pause = False
         self.pause_cond.notify()
