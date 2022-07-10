@@ -413,11 +413,19 @@ class MemberServer:
 
         # get the index_arr, calculate cv and send it
 
-        cv = self.member.calculate_cv()
+
         encrypted_cv = crypto.encrypt_message(str(cv).encode(), self.validator_details[2])
         ClientSocket.sendall(pickle.dumps({'request_code': 'after_voting', 'request_args': {'vote': 'y',
-                                                                                            'cv': encrypted_cv}}))
+                                                                                            'cv': encrypted_cv, 'index': self.member.index}}))
         logging.debug("sent Cv")
+
+        Response = ClientSocket.recv(settings.RECEIVE_BYTES)
+        pickled_response = pickle.loads(Response)
+        dynamic_x_arr = pickled_response['request_args']['x_arr']
+
+        cv = self.member.calculate_cv(dynamic_x_arr)
+
+
 
 
 
