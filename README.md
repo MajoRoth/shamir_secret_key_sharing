@@ -7,7 +7,7 @@ implementation of a variation of shamir secret sharing algorithm supporting dyna
 
 the communication between the objects made by sockets
 
-fully detailed documentation can be found at the [pdf](https://github.com/MajoRoth/public_key_infrastructure/blob/master/pki%20paper.pdf)
+fully detailed documentation can be found at the [pdf](https://github.com/MajoRoth/shamir_secret_key_sharing/blob/master/paper.pdf).
 
 
 ### Run
