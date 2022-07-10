@@ -1,7 +1,9 @@
 import logging
 # todo: reut needs do check it
-p = 10013071
-g = 43
+p = 13
+g = 3
+q = g**p
+
 delta = 10**(-5)
 PUBLIC_EXPONENT = 65537
 KEY_SIZE = 2048
@@ -14,7 +16,7 @@ DEALER_PORT = 5418
 MEMBERS = [("127.0.0.1", 5408), ("127.0.0.1", 5402), ("127.0.0.1", 5403), ("127.0.0.1", 5404), ("127.0.0.1", 5405)]
 
 VALIDATOR_HOST = "127.0.0.1"
-VALIDATOR_PORT = 5407
+VALIDATOR_PORT = 65432
 
 SUCCESS = {
 'code': 1
